@@ -1,0 +1,6 @@
+{
+  "*.ts": "eslint --fix",
+  "*.vue": "eslint --fix",
+  "*.css": "eslint --fix",
+  "*.less": "eslint --fix"
+}

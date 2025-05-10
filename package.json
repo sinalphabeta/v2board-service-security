@@ -1,0 +1,33 @@
+{
+  "name": "airbuddy-security",
+  "type": "module",
+  "version": "0.0.1",
+  "private": true,
+  "packageManager": "yarn@4.9.1",
+  "module": "./dist/index.js",
+  "scripts": {
+    "dev": "tsx watch ./src/index.ts",
+    "start": "bun run ./dist/index.js",
+    "build": "bun build ./src/index.ts --target=bun --outdir dist",
+    "build:executable": "bun build ./src/index.ts --compile --minify --sourcemap --target=bun-linux-x64-modern --outfile dist/airbuddy-security"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^3.9.2",
+    "@koa/bodyparser": "^5.1.1",
+    "@koa/cors": "^5.0.0",
+    "@koa/router": "^13.1.0",
+    "@types/bun": "latest",
+    "@types/koa": "^2.15.0",
+    "@types/koa__cors": "^5.0.0",
+    "@types/koa__router": "^12.0.4",
+    "@types/node": "^20.0",
+    "eslint": "^9.15.0",
+    "eslint-plugin-format": "^0.1.2",
+    "husky": "^9.1.7",
+    "is-ci": "^3.0.1",
+    "koa": "^3.0.0",
+    "lint-staged": "^15.2.0",
+    "tsx": "^4.19.4",
+    "typescript": "^5.7.2"
+  }
+}

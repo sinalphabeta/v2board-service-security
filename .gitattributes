@@ -1,0 +1,9 @@
+* text eol=lf
+
+*.node binary
+*.dylib binary
+*.dll binary
+*.so binary
+*.utf8 binary
+*.png binary
+*.jpg binary
