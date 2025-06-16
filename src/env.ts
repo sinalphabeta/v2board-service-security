@@ -1,6 +1,6 @@
 export const encoder = new TextEncoder()
 export const password = process.env.PASSWORD
-export const domain = process.env.DOMAIN
+export const domain = process.env.DOMAIN || 'http://localhost:3000'
 export const port = process.env.PORT || 3000
 // 动态代理配置
 export const proxyConfig = process.env.PROXY_URL
