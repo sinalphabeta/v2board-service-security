@@ -1,0 +1,110 @@
+name: Build Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      description:
+        description: 'release description.'
+        required: false
+        type: string
+jobs:
+  build-executable:
+    if: |
+      github.actor == github.repository_owner
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.2.11
+
+      - name: Get version from package.json
+        id: package-version
+        run: |
+          echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Install Dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build Executable
+        run: bun build:executable
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/airbuddy-security
+          tag_name: ${{ steps.package-version.outputs.version }}
+          name: ${{ steps.package-version.outputs.version }}
+          body: |
+            ${{ inputs.description }}
+
+  build-docker-image:
+    if: |
+      github.actor == github.repository_owner
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get version from package.json
+        id: package-version
+        run: |
+          echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Build Docker Image
+        run: |
+          docker build --platform linux/amd64 -t airbuddy-security:${{ steps.package-version.outputs.version }} .
+          docker images
+          docker save airbuddy-security:${{ steps.package-version.outputs.version }} > airbuddy-security-${{ steps.package-version.outputs.version }}.tar
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            airbuddy-security-${{ steps.package-version.outputs.version }}.tar
+          tag_name: ${{ steps.package-version.outputs.version }}
+          name: airbuddy-security-${{ steps.package-version.outputs.version }}.tar
+          body: |
+            ${{ inputs.description }}
+
+  build-js:
+    if: |
+      github.actor == github.repository_owner
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.2.11
+
+      - name: Get version from package.json
+        id: package-version
+        run: |
+          echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Install Dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build Executable
+        run: bun run build
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/index.js
+          tag_name: ${{ steps.package-version.outputs.version }}
+          name: ${{ steps.package-version.outputs.version }}
+          body: |
+            ${{ inputs.description }}

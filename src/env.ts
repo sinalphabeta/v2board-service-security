@@ -1,7 +1,11 @@
 export const encoder = new TextEncoder()
-export const password = process.env.PASSWORD || '1234567890'
-export const domain = process.env.DOMAIN || 'https://v2b.r8d.pro'
+export const password = process.env.PASSWORD
+export const domain = process.env.DOMAIN
 export const port = process.env.PORT || 3000
+// 动态代理配置
+export const proxyConfig = process.env.PROXY_URL
+  ? { proxy: process.env.PROXY_URL }
+  : {}
 const passwordBuffer = encoder.encode(password)
 
 const pbkdf2Key = await crypto.subtle.importKey(
@@ -64,7 +68,11 @@ const originalPathnameList = [
   '/api/v1/passport/auth/token2Login',
 
   // 自定义接口
-  '/api/v1/custom/hello',
+  '/api/v1/r8d/quick/plan', // 免登获取套餐列表
+  '/api/v1/r8d/quick/order/payment', // 免登获取订单支持的付款方式
+  '/api/v1/r8d/quick/coupon', // 免登获取优惠券信息
+  '/api/v1/r8d/quick/order', // 创建免登订单
+  '/api/v1/r8d/quick/order/detail/:id', // 免登获取订单详情
 ]
 
 async function genPathnameMap() {
@@ -78,4 +86,4 @@ async function genPathnameMap() {
 }
 
 export const pathnameMap = await genPathnameMap()
-// console.log('pathnameMap', pathnameMap)
+console.log('pathnameMap', pathnameMap)

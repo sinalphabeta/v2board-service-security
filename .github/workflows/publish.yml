@@ -1,0 +1,21 @@
+name: Publish Code
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source repository
+        uses: actions/checkout@v4
+
+      - name: Push to target repository
+        env:
+          TARGET_REPO: https://${{ secrets.TARGET_REPO_TOKEN }}@github.com/dc8683/v2board-service-airsecurity.git
+        run: |
+          git config --global user.name 'ReleaseBot'
+          git config --global user.email 'github-actions-bot@gmail.com'
+          git remote add target "$TARGET_REPO"
+          git push target HEAD:main --force
