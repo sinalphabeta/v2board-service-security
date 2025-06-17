@@ -29,7 +29,7 @@ app.use(cors({
 
 // 中间件：处理加密请求
 app.use(async (ctx, next) => {
-  console.log('原始请求:', `${ctx.method} ${ctx.request.path} ${JSON.stringify(ctx.request.query)}`, ctx.request.body)
+  console.log('\n原始请求:', `${ctx.method} ${ctx.request.path} ${JSON.stringify(ctx.request.query)}`, ctx.request.body)
   const salt = ctx.request.get('x-salt')
   const saltBuffer = salt && Buffer.from(salt, 'base64')
   console.log('请求头 x-salt:', salt)
@@ -70,7 +70,7 @@ app.use(async (ctx, next) => {
         console.error('解析请求体失败，保持原始字符串:', e)
       }
     }
-    console.log('解密请求:', `${ctx.method} ${ctx.request.path} ${JSON.stringify(ctx.request.query)}`, 'body:', ctx.request.body, 'rawBody:', ctx.request.rawBody)
+    console.log('解密请求:', `${ctx.method} ${ctx.request.path}`, `query: ${decryptQuery}`, 'body:', ctx.request.body)
   }
 
   await next()

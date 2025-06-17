@@ -44,7 +44,7 @@ export class BackendService {
       ...proxyConfig,
     })
 
-    return response.json() as Promise<T>
+    return await response.json() as Promise<T>
   }
 
   async initAdminToken(email: string, password: string) {

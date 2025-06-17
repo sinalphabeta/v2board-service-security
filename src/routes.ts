@@ -74,8 +74,6 @@ router.post('/api/v1/r8d/quick/order', async (ctx: Koa.Context) => {
     couponCode?: string
   }
 
-  console.log('创建免登订单请求体:', ctx.request.body)
-
   let couponType: 0 | 1 | 2 = 0
   let couponValue = 0
   if (couponCode) {
@@ -120,12 +118,10 @@ router.post('/api/v1/r8d/quick/order', async (ctx: Koa.Context) => {
   const totalAmount = originalPrice - preferential
 
   // 创建用户
-  console.log('createUser:', email, password)
   const authToken = await BackendService.instance.createUser({ email, password })
   console.log('createUser:', email, authToken)
 
   // 创建订单
-  console.log('createOrder:', email, planId, period, totalAmount)
   const order = await BackendService.instance.createOrder({
     email,
     planId,
@@ -141,7 +137,6 @@ router.post('/api/v1/r8d/quick/order', async (ctx: Koa.Context) => {
     paymentId, // 默认使用支付宝支付
   })
 
-  // TODO: 自建 SMTP 发送邮件方式
   MailerService.instance.sendNewUser(email, password)
 
   ctx.response.body = {
@@ -169,16 +164,16 @@ router.all('/api/v1/:segments*', async (ctx: Koa.Context) => {
 
   // 代理请求
   const url = new URL(domain)
-  const { query, path, body, rawBody } = ctx.request
+  const { query, path, rawBody } = ctx.request
   query && (url.search = new URLSearchParams(query as Record<string, string | readonly string[]>).toString())
   url.pathname = path
-  console.log('Proxy Request:', `${ctx.method} ${url.toString()}`, 'body:', body, 'rawBody:', rawBody)
+  console.log('代理转发请求:', `${ctx.method} ${url.toString()}`)
 
   const response = await fetch(url, {
     method: ctx.method,
     headers,
     body: rawBody,
-    verbose: true, // 调试用，输出详细日志
+    verbose: false, // 调试用，输出详细日志
     ...proxyConfig,
   })
 
