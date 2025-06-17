@@ -14,7 +14,7 @@
 * 在线客服：[🏄‍♂️ AirBuddy Service](https://t.me/R8d_pro_bot)
 * 交流群组：[🚀 AirBuddy Theme](https://t.me/themebuddy)
 * 授权方式：免费开源
-* 使用文档：[📖 AirBuddy Docs](https://docs.r8d.pro/docs)
+* 使用文档：[📖 AirBuddy Docs](https://r8d.pro/docs)
 
 
 ### 1. 加密转发
@@ -41,7 +41,7 @@
 * ADMIN_TOKEN: 面板管理员令牌，用于身份验证和权限控制，如果你填了 `ADMIN_EMAIL` 和 `ADMIN_PASSWORD` 则不需要填入 `ADMIN_TOKEN`，因为每次启动服务都会自动生成一个新的 `ADMIN_TOKEN`
 * ADMIN_EMAIL: 面板管理员邮箱账号
 * ADMIN_PASSWORD: 面板管理员密码
-* BACKEND_API_PREFIX: 面板管理后端 API 前缀
+* BACKEND_API_PREFIX: 面板管理后端 API 前缀，即管理面板的后台路径
 * DOMAIN: 你的后端域名，示例: https://api.xxx.com ，如果此服务和面板在同一台服务器上，可以使用局域网地址（局域网通信速度最佳，且可以关闭 v2board/xboard 面板对外的暴露），示例: http://127.0.0.1:3000
 * PASSWORD: AES 加密密码，用于加解密，请和前端中的 security.password 保持一致
 * MAIL_HOST: SMTP 邮件服务器地址
