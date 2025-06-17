@@ -85,10 +85,10 @@ export class MailerService {
           html: render(this.newUserTemplate, { email, password }),
         }
       : {
-          text: `${process.env.MAIL_SUBJECT}！\n\n您的账号信息：\n邮箱: ${email}\n密码: ${password}\n\n请妥善保管您的账号信息。`,
+          text: `${process.env.MAIL_NEWUSER_SUBJECT}！\n\n您的账号信息：\n邮箱: ${email}\n密码: ${password}\n\n请妥善保管您的账号信息。`,
         }
     await this.transport.sendMail({
-      subject: process.env.MAIL_SUBJECT,
+      subject: process.env.MAIL_NEWUSER_SUBJECT,
       ...template,
       from: this.auth.user,
       to: email,
