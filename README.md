@@ -19,7 +19,9 @@
 
 ### 1. 加密转发
 
-可以对接口的请求和响应进行加密处理，就像给你的数据穿上了一层保护衣，让数据传输更加安全。
+可以对接口的请求和响应进行加密处理，就像给你的数据穿上了一层保护衣，防止被墙，让数据传输更加安全。
+
+![](https://github.com/dc8683/picx-images-hosting/raw/master/docs/Clipboard---2025-06-17-15.06.21.6t7dmwj0sn.webp)
 
 ### 2. 免登接口
 
@@ -100,18 +102,24 @@
           - MAIL_NEWUSER_URL=${MAIL_NEWUSER_URL}
     ```
 
-5. 服务启动后，在网站 - 添加站点，域名设置你对外公开的域名，php 版本选择纯静态，创建后，点击设置，在反向代理 - 添加反向代理，目标 url: 
-   http://127.0.0.1:12020 , 端口号和 compose 中的 12020 一致，名称可以随意填写，例如 `airbuddy-security`，然后点击提交即可，如下所示:
-![](https://github.com/dc8683/picx-images-hosting/raw/master/docs/bt.4jobdueiw4.webp)
-![](https://github.com/dc8683/picx-images-hosting/raw/master/docs/Clipboard---2025-06-17-19.01.03.51eerz4i9u.webp)
+5. 服务启动后，在网站 - 反向代理，点击添加反代，域名设置你对外公开的域名，目标 url 填写本机地址 + compose 中的端口号，例如上面compose 对应的端口示例: http://127.0.0.1:12020 , 名称可以随意填写，例如 `airbuddy-security`，然后点击提交即可，如下所示:
+![](https://github.com/dc8683/picx-images-hosting/raw/master/docs/fandai.4n7z15bffe.webp)
 
 最后，通过访问 `https://你配置的域名/api/v1/guest/comm/config` 来测试服务是否正常运行，如果返回了配置数据，则表示服务运行正常
 
 ### js 部署与使用
 
-### 二进制文件部署使用
+该部署方式需要先确保全局安装了 Bun、 Yarn、 Node.js 等依赖工具，以下是 js 部署与使用的步骤:
+
+```bash
+   curl -fsSL https://bun.sh/install | bash # 针对 macOS、Linux 和 WSL 全局安装 Bun
+```
 
 ### 源码包部署使用
+
+该部署方式需要先确保全局安装了 Bun、 Yarn、 Node.js 等依赖工具，以下是源码包部署与使用的步骤:
+
+### 二进制文件部署使用
 
 ## 自行构建和调试使用
 
