@@ -62,7 +62,7 @@ jobs:
         run: |
           docker build --platform linux/amd64 -t airbuddy-security:${{ steps.package-version.outputs.version }} .
           docker images
-          docker save airbuddy-security:${{ steps.package-version.outputs.version }} > airbuddy-security-${{ steps.package-version.outputs.version }}.tar
+          docker save airbuddy-security:${{ steps.package-version.outputs.version }} > airbuddy-security-docker-image-${{ steps.package-version.outputs.version }}.tar
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
