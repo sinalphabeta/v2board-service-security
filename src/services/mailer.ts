@@ -1,6 +1,5 @@
-import * as fs from 'node:fs'
-import * as path from 'node:path'
 import nodemailer from 'nodemailer'
+import { proxyConfig } from '../env'
 
 const render = (template: string, data: Record<string, string>) => template.replace(/\$\{(\w+)\}/g, (_match, key) => data[key] || '')
 
@@ -37,18 +36,6 @@ export class MailerService {
       console.error('Mailer 配置不完整。请检查您的环境变量。')
       return
     }
-    try {
-      // 获取模板文件路径（假设与mailer.ts在同一目录）
-      const templatePath = path.join(__dirname, '../../assets/NewUser.html')
-
-      // 同步读取模板文件
-      this.newUserTemplate = fs.readFileSync(templatePath, 'utf-8')
-      console.log('Mailer 邮件模板加载成功')
-    }
-    catch (error) {
-      console.error('加载邮件模板失败:', error)
-      this.newUserTemplate = null
-    }
     this.transport = nodemailer.createTransport({
       host: this.host,
       port: this.port,
@@ -68,19 +55,41 @@ export class MailerService {
     }).catch((err) => {
       console.error('Mailer 配置验证失败:', err)
     })
+
+    // 加载邮件模板
+    if (!process.env.MAIL_NEWUSER_URL) {
+      console.error('新用户邮件模板 URL 未配置，将使用纯文本邮件模板')
+      return
+    }
+    console.log('加载新用户邮件模板:', process.env.MAIL_NEWUSER_URL)
+    const res = await fetch(process.env.MAIL_NEWUSER_URL, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'text/html; charset=utf-8',
+      },
+      verbose: true,
+      ...proxyConfig,
+    })
+
+    this.newUserTemplate = await res.text()
+    console.log('新用户邮件模板加载成功:', this.newUserTemplate.length)
   }
 
   async sendNewUser(email: string, password: string) {
-    if (!this.transport || !this.newUserTemplate) {
+    if (!this.transport) {
       console.error('Mailer 未初始化，无法发送邮件。请检查配置。')
       return
     }
+    const template = this.newUserTemplate
+      ? {
+          html: render(this.newUserTemplate, { email, password }),
+        }
+      : {
+          text: `${process.env.MAIL_SUBJECT}！\n\n您的账号信息：\n邮箱: ${email}\n密码: ${password}\n\n请妥善保管您的账号信息。`,
+        }
     await this.transport.sendMail({
-      subject: '欢迎使用 AirBuddy',
-      html: render(this.newUserTemplate, {
-        email,
-        password,
-      }),
+      subject: process.env.MAIL_SUBJECT,
+      ...template,
       from: this.auth.user,
       to: email,
     })
