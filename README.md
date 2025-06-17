@@ -107,19 +107,51 @@
 
 最后，通过访问 `https://你配置的域名/api/v1/guest/comm/config` 来测试服务是否正常运行，如果返回了配置数据，则表示服务运行正常
 
-### js 部署与使用
-
-该部署方式需要先确保全局安装了 Bun、 Yarn、 Node.js 等依赖工具，以下是 js 部署与使用的步骤:
-
-```bash
-   curl -fsSL https://bun.sh/install | bash # 针对 macOS、Linux 和 WSL 全局安装 Bun
-```
-
 ### 源码包部署使用
 
-该部署方式需要先确保全局安装了 Bun、 Yarn、 Node.js 等依赖工具，以下是源码包部署与使用的步骤:
+> 该部署方式需要先确保全局安装了 Bun、 Yarn、 Node.js 等依赖工具，以下是环境安装步骤，如若遇到问题请自行百度
+
+```bash
+# Download and install nvm:
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+
+# in lieu of restarting the shell
+\. "$HOME/.nvm/nvm.sh"
+
+# 下载与安装 Node.js:
+nvm install 22
+
+# 验证 Node.js 版本:
+node -v # Should print "v22.16.0".
+nvm current # Should print "v22.16.0".
+
+# 验证 npm 版本:
+npm -v # Should print "10.9.2".
+
+# 下载安装 Bun 并验证
+curl -fsSL https://bun.sh/install | bash # 针对 macOS、Linux 和 WSL
+bun -v # 查看 Bun 版本来验证 Bun 是否安装成功
+
+# 安装 Yarn
+npm install -g corepack
+
+# 启用 Yarn
+corepack enable # 开启 corepack
+yarn -v # 查看 Yarn 版本来验证 Yarn 是否安装成功，第一次会提示你是否要下载，输入 Y 即可
+```
+
+安装步骤正在编写中...
+
+
+### js 部署与使用
+
+> 该部署方式和源码包都需要先确保全局安装了 Bun、 Yarn、 Node.js 等依赖工具，参考上面的环境安装步骤
+
+安装步骤正在编写中...
 
 ### 二进制文件部署使用
+
+安装步骤正在编写中...
 
 ## 自行构建和调试使用
 
