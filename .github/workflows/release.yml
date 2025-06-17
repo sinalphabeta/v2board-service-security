@@ -96,8 +96,8 @@ jobs:
       - name: Install Dependencies
         run: bun install --frozen-lockfile
 
-      - name: Build Executable
-        run: bun run build
+      - name: Build Node Dist
+        run: bun run build:node
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
