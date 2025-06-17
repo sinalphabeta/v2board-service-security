@@ -52,6 +52,8 @@
 * MAIL_NEWUSER_SUBJECT: 新用户注册邮件主题
 * MAIL_NEWUSER_URL: 新用户注册邮件模板链接，用于向新用户发送注册成功和账号密码的通知，需自行创建一个邮件模板文件，并将其放置在 cdn 上，作为链接，设置到 `MAIL_NEWUSER_URL` 环境变量中，如果不设置，将默认采用纯文本模板
 
+> tips: 如果你只是需要防墙通信，而不需要免登支付注册一体的话，就只需要配置 `PASSWORD` 和 `DOMAIN` 即可，其他配置可以不填
+
 ### 5. 邮件模板
 
 我们提供了一个默认的邮件模板，你可以在 [NewUser Email Template](https://github.com/dc8683/picx-images-hosting/blob/master/email-template/NewUser.html) 下载下来修改网址和内容，或者自行创建一个新的邮件模板文件，并将其放置在 cdn 上，作为链接，设置到 `MAIL_NEWUSER_URL` 环境变量中，如果不设置，将默认采用纯文本模板。
@@ -107,9 +109,9 @@
 
 最后，通过访问 `https://你配置的域名/api/v1/guest/comm/config` 来测试服务是否正常运行，如果返回了配置数据，则表示服务运行正常
 
-### 源码包部署使用
+### js 部署与使用
 
-> 该部署方式需要先确保全局安装了 Bun、 Yarn、 Node.js 等依赖工具，以下是环境安装步骤，如若遇到问题请自行百度
+> 该部署方式需要先确保全局安装了 Yarn、 Node.js 等依赖工具，以下是环境安装步骤，如若遇到问题请自行百度
 
 ```bash
 # Download and install nvm:
@@ -128,10 +130,6 @@ nvm current # Should print "v22.16.0".
 # 验证 npm 版本:
 npm -v # Should print "10.9.2".
 
-# 下载安装 Bun 并验证
-curl -fsSL https://bun.sh/install | bash # 针对 macOS、Linux 和 WSL
-bun -v # 查看 Bun 版本来验证 Bun 是否安装成功
-
 # 安装 Yarn
 npm install -g corepack
 
@@ -140,14 +138,35 @@ corepack enable # 开启 corepack
 yarn -v # 查看 Yarn 版本来验证 Yarn 是否安装成功，第一次会提示你是否要下载，输入 Y 即可
 ```
 
-安装步骤正在编写中...
+1. 上传 `index.js` 文件到项目目录，并点击终端，执行以下命令
 
+   ```bash
+   # 设置环境变量, 参考上面的环境变量说明
+   export PORT=12020 # 端口号
+   export ADMIN_EMAIL=xxx@gmail.com # 面板管理员邮箱账号
+   export ADMIN_PASSWORD=xxxx # 面板管理员密码
+   export BACKEND_API_PREFIX=xxx # 面板管理后端 API 前缀
+   export DOMAIN=https://xxx.r8d.pro
+   export PASSWORD=89236475 # AES 加密密码，前端和后端需要保持一致
+   export MAIL_HOST=smtp.gmail.com # SMTP 邮件服务器地址
+   export MAIL_PORT=465
+   export MAIL_SECURE=true
+   export MAIL_USER=xxx@gmail.com # SMTP 邮件服务器用户名
+   export MAIL_PASS=xxx # SMTP 邮件服务器密码
+   export MAIL_NEWUSER_SUBJECT='欢迎加入 AirBuddy'
+   export MAIL_NEWUSER_URL=https://xxx.com/xxx.html # 新用户注册邮件模板链接
+   
+   # 运行程序
+   node index.js
+   ```
+   
+   > 如果你想要在后台运行，可以在宝塔面板中的进程守护中，执行以上命令
 
-### js 部署与使用
+2. 服务启动后，在网站 - 反向代理，点击添加反代，域名设置你对外公开的域名，目标 url 填写本机地址 + compose 中的端口号，例如上面compose 对应的端口示例: http://127.0.0.1:12020 , 名称可以随意填写，例如 `airbuddy-security`，然后点击提交即可，如下所示:
+   ![](https://github.com/dc8683/picx-images-hosting/raw/master/docs/fandai.4n7z15bffe.webp)
 
-> 该部署方式和源码包都需要先确保全局安装了 Bun、 Yarn、 Node.js 等依赖工具，参考上面的环境安装步骤
+最后，通过访问 `https://你配置的域名/api/v1/guest/comm/config` 来测试服务是否正常运行，如果返回了配置数据，则表示服务运行正常
 
-安装步骤正在编写中...
 
 ### 二进制文件部署使用
 
