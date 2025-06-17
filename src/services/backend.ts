@@ -1,4 +1,3 @@
-import jwt from 'jsonwebtoken'
 import { proxyConfig } from '../env'
 
 export class BackendService {
@@ -132,13 +131,7 @@ export class BackendService {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     })
 
-    const token = await this.getUserToken(email, password)
-    return token
-    // return jwt.sign(
-    //   { data: { email } },
-    //   process.env.JWT_SECRET as string,
-    //   { expiresIn: '1h' },
-    // )
+    return await this.getUserToken(email, password)
   }
 
   async createOrder({
@@ -174,32 +167,6 @@ export class BackendService {
       }),
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     })).data
-  }
-
-  checkJwt(token: string, { email }: { email: string }) {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string)
-
-    if (typeof decoded === 'string') {
-      throw new TypeError('unknown data')
-    }
-    else if (JSON.parse(decoded.data).email !== email) {
-      throw new Error('email mismatch')
-    }
-  }
-
-  async getOrderDetail({ id, token }: { id: string, token: string }) {
-    const url = this.userApi('order/detail')
-    const method = 'GET'
-
-    const order = await this.request<{ data: Order }>(`${url}?trade_no=${id}`, {
-      method,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': token,
-      },
-    }).then(res => res.data)
-
-    return order
   }
 
   async getUserToken(email: string, password: string) {
@@ -263,15 +230,6 @@ interface Plan {
   three_year_price: null | number
   onetime_price: null | number
   reset_price: null | number
-}
-
-interface Order {
-  trade_no: string
-  user_id: number
-  plan_id: number
-  period: string
-  total_amount: number
-  status: number
 }
 
 interface Payment {
