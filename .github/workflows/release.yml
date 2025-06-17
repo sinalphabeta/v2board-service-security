@@ -39,7 +39,7 @@ jobs:
           files: |
             dist/airbuddy-security-executable
           tag_name: ${{ steps.package-version.outputs.version }}
-          name: airbuddy-security-${{ steps.package-version.outputs.version }}
+          name: ${{ steps.package-version.outputs.version }}
           body: |
             ${{ inputs.description }}
 
@@ -105,6 +105,6 @@ jobs:
           files: |
             dist/index.js
           tag_name: ${{ steps.package-version.outputs.version }}
-          name: airbuddy-security-${{ steps.package-version.outputs.version }}
+          name: ${{ steps.package-version.outputs.version }}
           body: |
             ${{ inputs.description }}
