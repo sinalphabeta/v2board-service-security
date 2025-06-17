@@ -9,7 +9,7 @@
     "dev": "bun run --watch ./dev.ts",
     "start": "bun run ./dist/index.js",
     "build": "bun build ./src/index.ts --target=bun --outdir dist",
-    "build:executable": "bun build ./src/index.ts --compile --minify --sourcemap --target=bun-linux-x64-modern --outfile dist/airbuddy-security"
+    "build:executable": "bun build ./src/index.ts --compile --minify --sourcemap --target=bun-linux-x64-modern --outfile dist/airbuddy-security-executable"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^3.9.2",

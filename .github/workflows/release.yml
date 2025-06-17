@@ -37,9 +37,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            dist/airbuddy-security
+            dist/airbuddy-security-executable
           tag_name: ${{ steps.package-version.outputs.version }}
-          name: airbuddy-security-executable-${{ steps.package-version.outputs.version }}
+          name: airbuddy-security-${{ steps.package-version.outputs.version }}
           body: |
             ${{ inputs.description }}
 
@@ -68,9 +68,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            airbuddy-security-${{ steps.package-version.outputs.version }}.tar
+            airbuddy-security-docker-image-${{ steps.package-version.outputs.version }}.tar
           tag_name: ${{ steps.package-version.outputs.version }}
-          name: airbuddy-security-docker-image-${{ steps.package-version.outputs.version }}.tar
+          name: airbuddy-security-${{ steps.package-version.outputs.version }}
           body: |
             ${{ inputs.description }}
 
@@ -105,6 +105,6 @@ jobs:
           files: |
             dist/index.js
           tag_name: ${{ steps.package-version.outputs.version }}
-          name: ${{ steps.package-version.outputs.version }}
+          name: airbuddy-security-${{ steps.package-version.outputs.version }}
           body: |
             ${{ inputs.description }}
