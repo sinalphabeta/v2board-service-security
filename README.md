@@ -40,7 +40,7 @@
 * ADMIN_EMAIL: 面板管理员邮箱账号
 * ADMIN_PASSWORD: 面板管理员密码
 * BACKEND_API_PREFIX: 面板管理后端 API 前缀
-* DOMAIN: 你的后端域名，示例:https://api.xxx.com，如果此服务和面板在同一台服务器上，可以使用局域网地址，示例: http://127.0.0.1:3000
+* DOMAIN: 你的后端域名，示例: https://api.xxx.com ，如果此服务和面板在同一台服务器上，可以使用局域网地址，示例: http://127.0.0.1:3000
 * PASSWORD: AES 加密密码，用于加解密，请和前端中的 security.password 保持一致
 * MAIL_HOST: SMTP 邮件服务器地址
 * MAIL_PORT: SMTP 邮件服务器端口
