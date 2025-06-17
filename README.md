@@ -1,6 +1,6 @@
 <div align="center">
     <a href="https://r8d.pro"><img src="https://github.com/dc8683/picx-images-hosting/raw/master/docs/AirSecurity-LOGO@1x.86twptctpt.webp" alt="airbuddy rocket theme" width="150" /></a>
-    <h1>AirSecurity Service</h1>
+    <h1>AirBuddy Security Service</h1>
     <p><b> v2board/xboard/xiaoboard </b>开源后端中间件服务，防墙去特征、不怕墙、体积超小的免费中间件服务，支持 V2B/XB/xiaoboard，支持加密转发接口请求、响应，支持免登获取商品列表、免登获取付款方、免登创建订单接口，自建 SMTP，支持自定义邮件模板</p>
 </div>
 
@@ -40,32 +40,80 @@
 * ADMIN_EMAIL: 面板管理员邮箱账号
 * ADMIN_PASSWORD: 面板管理员密码
 * BACKEND_API_PREFIX: 面板管理后端 API 前缀
-* DOMAIN: 你的后端域名，示例: https://api.xxx.com ，如果此服务和面板在同一台服务器上，可以使用局域网地址，示例: http://127.0.0.1:3000
+* DOMAIN: 你的后端域名，示例: https://api.xxx.com ，如果此服务和面板在同一台服务器上，可以使用局域网地址（局域网通信速度最佳，且可以关闭 v2board/xboard 面板对外的暴露），示例: http://127.0.0.1:3000
 * PASSWORD: AES 加密密码，用于加解密，请和前端中的 security.password 保持一致
 * MAIL_HOST: SMTP 邮件服务器地址
 * MAIL_PORT: SMTP 邮件服务器端口
 * MAIL_SECURE: SMTP 邮件服务器安全协议，true 或 false
 * MAIL_USER: SMTP 邮件服务器用户名
 * MAIL_PASS: SMTP 邮件服务器密码
+* MAIL_NEWUSER_SUBJECT: 新用户注册邮件主题
+* MAIL_NEWUSER_URL: 新用户注册邮件模板链接，用于向新用户发送注册成功和账号密码的通知，需自行创建一个邮件模板文件，并将其放置在 cdn 上，作为链接，设置到 `MAIL_NEWUSER_URL` 环境变量中，如果不设置，将默认采用纯文本模板
 
 ### 5. 邮件模板
 
-在 `./assets` 目录下有一些邮件模板文件，您可以根据需要进行修改。以下是一些主要的邮件模板：
-* `NewUser.html`: 新用户注册邮件模板，用于向新用户发送注册成功和账号密码的通知
+我们提供了一个默认的邮件模板，你可以在 [NewUser Email Template](https://github.com/dc8683/picx-images-hosting/blob/master/email-template/NewUser.html) 下载下来修改网址和内容，或者自行创建一个新的邮件模板文件，并将其放置在 cdn 上，作为链接，设置到 `MAIL_NEWUSER_URL` 环境变量中，如果不设置，将默认采用纯文本模板。
+
+此外，如果你需要定制更好看的邮件模板，我们非常推荐使用 [wand email](https://www.wand.email/)，这是一个非常好用的 AI 一键生成邮件模板工具
 
 ## 安装和使用
 
-此项目你可以自行构建或者使用 release 中的产物，release 中包含了 js 构建产物、docker 产物、二进制文件、源码包
+此项目你可以自行构建或者使用 release 中的产物，release 中包含了 js 构建产物、docker 产物、二进制文件、源码包，以下部署与使用方式均以 release 中的产物为例，本项目采用 Bun 作为构建工具，支持 Node.js 18+ 版本，环境要求如下:
 
-### js 构建产物部署与使用
+* Node.js 18+ 版本
+* Bun 1.0+ 版本
+* Yarn 1.22+ 版本
 
-### docker 产物部署使用
+### docker 部署使用
+
+1. 下载 release 中的 docker 产物，文件名称为 `airbuddy-security-docker-image-版本号.tar`
+2. 上传到宝塔中的文件目录，例如 `/www/wwwroot/security`
+3. 在宝塔中打开 docker - 本地镜像，点击导入镜像，选择刚才上传的 `airbuddy-security-docker-image-版本号.tar` 文件，此时镜像列表中会多出一个 `airbuddy-security:版本号` 镜像，如图所示: ![](https://github.com/dc8683/picx-images-hosting/raw/master/docs/Clipboard---2025-06-17-16.34.38.2obsamib0p.webp)
+
+4. 您可以使用 docker 命令或者界面中的创建容器来创建容器，为了各位用户更方便使用，以下提供一份 docker 编排文件，在宝塔中使用容器编排来启动服务，你可以将其转成命令来使用
+    
+   ```yaml
+    version: '3'
+    
+    services:
+      airbuddy-security-service:
+        # 替换为你实际的镜像名称和标签
+        image: airbuddy-security:1.0.1
+        container_name: airbuddy-security-service
+        restart: always
+        ports:
+          # 将容器内部的 3000 端口映射到主机的 12020 端口
+          - "12020:3000"
+        environment:
+          # 以下是环境变量配置，请根据实际情况修改
+          - ADMIN_EMAIL=${ADMIN_EMAIL}
+          - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+          - BACKEND_API_PREFIX=${BACKEND_API_PREFIX}
+          - DOMAIN=${DOMAIN}
+          - PASSWORD=${PASSWORD}
+          - MAIL_HOST=${MAIL_HOST}
+          - MAIL_PORT=${MAIL_PORT}
+          - MAIL_SECURE=${MAIL_SECURE}
+          - MAIL_USER=${MAIL_USER}
+          - MAIL_PASS=${MAIL_PASS}
+          - MAIL_NEWUSER_SUBJECT=${MAIL_NEWUSER_SUBJECT}
+          - MAIL_NEWUSER_URL=${MAIL_NEWUSER_URL}
+    ```
+
+5. 服务启动后，在网站 - 添加站点，域名设置你对外公开的域名，php 版本选择纯静态，创建后，点击设置，在反向代理 - 添加反向代理，目标 url: 
+   http://127.0.0.1:12020 , 端口号和 compose 中的 12020 一致，名称可以随意填写，例如 `airbuddy-security`，然后点击提交即可，如下所示:
+![](https://github.com/dc8683/picx-images-hosting/raw/master/docs/bt.4jobdueiw4.webp)
+![](https://github.com/dc8683/picx-images-hosting/raw/master/docs/Clipboard---2025-06-17-19.01.03.51eerz4i9u.webp)
+
+最后，通过访问 `https://你配置的域名/api/v1/guest/comm/config` 来测试服务是否正常运行，如果返回了配置数据，则表示服务运行正常
+
+### js 部署与使用
 
 ### 二进制文件部署使用
 
 ### 源码包部署使用
 
-## 自行构建
+## 自行构建和调试使用
 
 ### 1.克隆项目
 
@@ -78,9 +126,21 @@
    yarn install
 ```
 
-### 3. 构建项目
+### 3. 配置环境变量
+```bash
+   cp .env.example .env # 复制环境变量配置文件 => 生产环境使用
+   cp .env.exampl .env.local # 复制环境变量配置文件 => 本地调试使用
+```
+
+### 4. 构建项目
 ```bash
    yarn run build # 构建 js 产物
    yarn run build:executable # 构建二进制文件
    docker build -t airsecurity . # 构建 docker 镜像
+```
+### 5. 运行项目
+```bash
+   yarn run start # 启动服务
+   yarn run dev # 本地调试
+   docker run -d --name airsecurity -p 3000:3000 airsecurity # 启动 docker 容器
 ```
