@@ -64,8 +64,7 @@
 
 此项目你可以自行构建或者使用 release 中的产物，release 中包含了 js 构建产物、docker 产物、二进制文件、源码包，以下部署与使用方式均以 release 中的产物为例，本项目采用 Bun 作为构建工具，支持 Node.js 18+ 版本，环境要求如下:
 
-* Node.js 18+ 版本
-* Bun 1.0+ 版本
+* Node.js 20+ 版本
 * Yarn 1.22+ 版本
 
 ### docker 部署使用
@@ -108,6 +107,10 @@
 ![](https://github.com/dc8683/picx-images-hosting/raw/master/docs/fandai.4n7z15bffe.webp)
 
 最后，通过访问 `https://你配置的域名/api/v1/guest/comm/config` 来测试服务是否正常运行，如果返回了配置数据，则表示服务运行正常
+
+> Tips: 如果你使用了宝塔的 docker 容器编排功能，可以在宝塔中直接编辑环境变量，还能在宝塔中查看日志，方便调试和维护，如下图所示:
+>  
+> ![](https://github.com/dc8683/picx-images-hosting/raw/master/docs/Clipboard---2025-06-19-00.34.24.6pnrqx732d.webp)
 
 ### js 部署与使用
 
