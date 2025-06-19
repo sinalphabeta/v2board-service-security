@@ -1,8 +1,10 @@
 import type Koa from 'koa'
 import type { PlanPeriodKey } from './services/backend'
+import * as process from 'node:process'
 import KoaRouter from '@koa/router'
 import { domain, proxyConfig } from './env'
 import { BackendService } from './services/backend'
+import { generateCaptchaCode, generateCaptchaImageDataUrl, verifyCaptchaCode } from './services/captcha'
 import { MailerService } from './services/mailer'
 
 export const router = new KoaRouter()
@@ -62,16 +64,87 @@ router.post('/api/v1/r8d/quick/coupon', async (ctx: Koa.Context) => {
 })
 
 /**
+ * 获取验证码
+ */
+router.get('/api/v1/r8d/quick/captcha', async (ctx: Koa.Context) => {
+  const captchaKey = process.env.CAPTCHA_KEY
+  if (!captchaKey) {
+    ctx.response.status = 200
+    ctx.response.body = {
+      data: null,
+    }
+    return
+  }
+  const { key } = ctx.request.query as { key: string }
+  try {
+    const timestamp = Date.now()
+
+    const captcha = await generateCaptchaImageDataUrl({
+      code: generateCaptchaCode({ key: `${key}-${captchaKey}`, timestamp }),
+    })
+
+    ctx.response.body = {
+      data: captcha,
+      timestamp,
+    }
+  }
+  catch (e) {
+    console.error('getCaptcha 500', e)
+    ctx.response.status = 500
+    ctx.response.body = {
+      code: 500,
+      message: '获取验证码失败',
+    }
+  }
+})
+
+/**
  * 创建免登订单
  */
 router.post('/api/v1/r8d/quick/order', async (ctx: Koa.Context) => {
-  const { email, password, planId, period, paymentId, couponCode } = ctx.request.body as {
+  const { email, password, planId, period, paymentId, couponCode, captcha } = ctx.request.body as {
     planId: string
     period: PlanPeriodKey
     paymentId: number
     email: string
     password: string
     couponCode?: string
+    captcha?: {
+      key: string
+      code: string
+      timestamp: number
+    }
+  }
+
+  const captchaKey = process.env.CAPTCHA_KEY
+  if (captchaKey) {
+    // 检查是否提供了验证码
+    if (!captcha || !captcha.code || !captcha.key || !captcha.timestamp) {
+      ctx.response.status = 500
+      ctx.response.body = {
+        code: 502,
+        message: '缺少验证码',
+      }
+      return
+    }
+    // 检查时间戳是否在有效范围内
+    if (Date.now() - Number(captcha.timestamp) > 5 * 60 * 1000) {
+      ctx.response.status = 500
+      ctx.response.body = {
+        code: 502,
+        message: '验证码已过期',
+      }
+      return
+    }
+    // 检查验证码
+    if (!verifyCaptchaCode({ code: captcha.code, key: `${captcha.key}-${captchaKey}`, timestamp: Number(captcha.timestamp) })) {
+      ctx.response.status = 500
+      ctx.response.body = {
+        code: 502,
+        message: '验证码错误',
+      }
+      return
+    }
   }
 
   let couponType: 0 | 1 | 2 = 0
