@@ -2,10 +2,9 @@ import type Koa from 'koa'
 import type { PlanPeriodKey } from './services/backend'
 import * as process from 'node:process'
 import KoaRouter from '@koa/router'
-import svgCaptcha from 'svg-captcha'
 import { domain, proxyConfig } from './env'
 import { BackendService } from './services/backend'
-import { generateCaptchaHash, svgToDataUrl, verifyCaptchaHash } from './services/captcha'
+import { generateCaptchaData, generateCaptchaHash, verifyCaptchaHash } from './services/captcha'
 import { MailerService } from './services/mailer'
 
 export const router = new KoaRouter()
@@ -79,24 +78,17 @@ router.get('/api/v1/r8d/quick/captcha', async (ctx: Koa.Context) => {
   const { key } = ctx.request.query as { key: string }
   try {
     const timestamp = Date.now()
-    const colorCode = `#${Array.from({ length: 6 }, () =>
-      Math.floor(Math.random() * 16).toString(16)).join('')}`
 
-    const { text, data } = svgCaptcha.create({
-      noise: 2,
-      ignoreChars: '0o1i',
-      color: true,
-      background: colorCode,
-    })
+    const { code, dataURL } = await generateCaptchaData()
     const hash = generateCaptchaHash({
-      code: text,
+      code,
       key,
       timestamp,
       captchaKey,
     })
 
     ctx.response.body = {
-      data: svgToDataUrl(data),
+      data: dataURL,
       timestamp,
       hash,
     }
@@ -151,7 +143,7 @@ router.post('/api/v1/r8d/quick/order', async (ctx: Koa.Context) => {
       }
       return
     }
-    // 检查验证码
+    // 验证验证码哈希
     if (!verifyCaptchaHash({ code, key, timestamp, captchaKey, hash })) {
       ctx.response.status = 500
       ctx.response.body = {

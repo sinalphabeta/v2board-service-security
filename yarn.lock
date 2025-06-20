@@ -934,6 +934,13 @@ caniuse-lite@^1.0.30001716:
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001718.tgz#dae13a9c80d517c30c6197515a96131c194d8f82"
   integrity sha512-AflseV1ahcSunK53NfEs9gFWgOEmzr0f+kaMFA4xiLZlr9Hzt7HxcSpIFcnNCUkz6R6dWKa54rUz3HUmI3nVcw==
 
+captchapng@^0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/captchapng/-/captchapng-0.0.1.tgz#17605d4076fec6370791061aa814399e18c893ea"
+  integrity sha512-YXm7JkG2tv19Yxt+XnbsEjxMdcL55LM4FEUSOJFGtHlVHcb3MBzE9KSI3/S2sVuJvna7DaMf1KxNuw/XqVjoXQ==
+  dependencies:
+    pnglib ""
+
 ccount@^2.0.0:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/ccount/-/ccount-2.0.1.tgz#17a3bf82302e0870d6da43a01311a8bc02a3ecf5"
@@ -2904,13 +2911,6 @@ onetime@^7.0.0:
   dependencies:
     mimic-function "^5.0.0"
 
-opentype.js@^0.7.3:
-  version "0.7.3"
-  resolved "https://registry.yarnpkg.com/opentype.js/-/opentype.js-0.7.3.tgz#40fb8ce18bfd60e74448efdfe442834098397aab"
-  integrity sha512-Veui5vl2bLonFJ/SjX/WRWJT3SncgiZNnKUyahmXCc2sa1xXW15u3R/3TN5+JFiP7RsjK5ER4HA5eWaEmV9deA==
-  dependencies:
-    tiny-inflate "^1.0.2"
-
 optionator@^0.9.3:
   version "0.9.4"
   resolved "https://registry.yarnpkg.com/optionator/-/optionator-0.9.4.tgz#7ea1c1a5d91d764fb282139c88fe11e182a3a734"
@@ -3072,6 +3072,11 @@ pluralize@^8.0.0:
   version "8.0.0"
   resolved "https://registry.yarnpkg.com/pluralize/-/pluralize-8.0.0.tgz#1a6fa16a38d12a1901e0320fa017051c539ce3b1"
   integrity sha512-Nc3IT5yHzflTfbjgqWcCPpo7DaKy4FnpB0l/zCAW0Tc7jxAiuqSxHasntB3D7887LSrA93kDJ9IXovxJYxyLCA==
+
+pnglib@:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/pnglib/-/pnglib-0.0.1.tgz#f9ab6f9c688f4a9d579ad8be28878a716e30c096"
+  integrity sha512-95ChzOoYLOPIyVmL+Y6X+abKGXUJlvOVLkB1QQkyXl7Uczc6FElUy/x01NS7r2GX6GRezloO/ecCX9h4U9KadA==
 
 postcss-selector-parser@^6.0.15:
   version "6.1.2"
@@ -3452,13 +3457,6 @@ supports-preserve-symlinks-flag@^1.0.0:
   resolved "https://registry.yarnpkg.com/supports-preserve-symlinks-flag/-/supports-preserve-symlinks-flag-1.0.0.tgz#6eda4bd344a3c94aea376d4cc31bc77311039e09"
   integrity sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==
 
-svg-captcha@^1.4.0:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/svg-captcha/-/svg-captcha-1.4.0.tgz#32ead3c6463936c218bb3bc9ed04fea4eeffe492"
-  integrity sha512-/fkkhavXPE57zRRCjNqAP3txRCSncpMx3NnNZL7iEoyAtYwUjPhJxW6FQTQPG5UPEmCrbFoXS10C3YdJlW7PDg==
-  dependencies:
-    opentype.js "^0.7.3"
-
 "synckit@^0.6.2 || ^0.7.3 || ^0.11.5":
   version "0.11.6"
   resolved "https://registry.yarnpkg.com/synckit/-/synckit-0.11.6.tgz#e742a0c27bbc1fbc96f2010770521015cca7ed5c"
@@ -3478,11 +3476,6 @@ tapable@^2.2.0:
   version "2.2.2"
   resolved "https://registry.yarnpkg.com/tapable/-/tapable-2.2.2.tgz#ab4984340d30cb9989a490032f086dbb8b56d872"
   integrity sha512-Re10+NauLTMCudc7T5WLFLAwDhQ0JWdrMK+9B2M8zR5hRExKmsRDCBA7/aV/pNJFltmBFO5BAMlQFi/vq3nKOg==
-
-tiny-inflate@^1.0.2:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/tiny-inflate/-/tiny-inflate-1.0.3.tgz#122715494913a1805166aaf7c93467933eea26c4"
-  integrity sha512-pkY1fj1cKHb2seWDy0B16HeWyczlJA9/WW3u3c4z/NiWDsO3DOU5D7nhTLE9CF0yXv/QZFY7sEJmj24dK+Rrqw==
 
 tinyexec@^1.0.1:
   version "1.0.1"
