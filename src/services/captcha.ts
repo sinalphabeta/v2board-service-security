@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto'
-import CaptchaPNG from 'captchapng'
+// @ts-ignore
+import CaptchaPng from '../captchapng/captchapng'
 
 function generateContrastColors(): {
   background: [number, number, number, number]
@@ -25,7 +26,7 @@ function generateContrastColors(): {
 export async function generateCaptchaData() {
   const code = Math.floor(Math.random() * 9000) + 1000
   const colors = generateContrastColors()
-  const p = new CaptchaPNG(180, 60, code) // 生成一个4位数的验证码
+  const p = new CaptchaPng(180, 60, code) // 生成一个4位数的验证码
   p.color(...colors.background) // First color: background (red, green, blue, alpha)
   p.color(...colors.foreground) // Second color: paint (red, green, blue, alpha)
   return {
