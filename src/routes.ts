@@ -247,7 +247,55 @@ router.all('/api/v1/:segments*', async (ctx: Koa.Context) => {
   const { query, path, rawBody } = ctx.request
   query && (url.search = new URLSearchParams(query as Record<string, string | readonly string[]>).toString())
   url.pathname = path
-  console.log('代理转发请求:', `${ctx.method} ${url.toString()}`)
+  console.log('代理转发请求:', `${ctx.method} ${url.toString()}`, 'path:', path)
+  
+  // 注册路由的验证码校验
+  const captchaKey = process.env.CAPTCHA_KEY
+  const captchaRegisterEnabled = process.env.CAPTCHA_EREGISTRATION_ENABLED === 'true'
+  const IsRegistrationPath = path === '/api/v1/passport/auth/register'
+  if (captchaKey && captchaRegisterEnabled && IsRegistrationPath) {
+    const body = ctx.request.body as {
+      email: string,
+      password: string,
+      email_code: string,
+      invite_code?: string,
+      recaptcha_data?: string,
+      captcha?: {
+        key: string
+        code: string
+        timestamp: number
+        hash: string
+      }
+    }
+    // 检查是否提供了验证码
+    if (!body.captcha) {
+      ctx.response.status = 500
+      ctx.response.body = {
+        code: 502,
+        message: '缺少验证码',
+      }
+      return
+    }
+    const { code, key, timestamp, hash } = body.captcha
+    // 检查时间戳是否在有效范围内
+    if (Date.now() - Number(timestamp) > 5 * 60 * 1000) {
+      ctx.response.status = 500
+      ctx.response.body = {
+        code: 502,
+        message: '验证码已过期',
+      }
+      return
+    }
+    // 验证验证码哈希
+    if (!verifyCaptchaHash({ code, key, timestamp, captchaKey, hash })) {
+      ctx.response.status = 500
+      ctx.response.body = {
+        code: 502,
+        message: '验证码错误',
+      }
+      return
+    }
+  }
 
   const response = await fetch(url, {
     method: ctx.method,
