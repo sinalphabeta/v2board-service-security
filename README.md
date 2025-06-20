@@ -38,12 +38,13 @@
 
 在``.env.example``文件中包含了主要的环境变量配置，您可以根据需要进行修改。以下是一些主要的环境变量：
 
+* PORT: 服务监听端口，默认值为 3000
+* PASSWORD: AES 加密密码，用于加解密，请和前端中的 security.password 保持一致
+* DOMAIN: 你的后端域名，示例: https://api.xxx.com ，如果此服务和面板在同一台服务器上，可以使用局域网地址（局域网通信速度最佳，且可以关闭 v2board/xboard 面板对外的暴露），示例: http://127.0.0.1:3000
 * ADMIN_TOKEN: 面板管理员令牌，用于身份验证和权限控制，如果你填了 `ADMIN_EMAIL` 和 `ADMIN_PASSWORD` 则不需要填入 `ADMIN_TOKEN`，因为每次启动服务都会自动生成一个新的 `ADMIN_TOKEN`
 * ADMIN_EMAIL: 面板管理员邮箱账号
 * ADMIN_PASSWORD: 面板管理员密码
 * BACKEND_API_PREFIX: 面板管理后端 API 前缀，即管理面板的后台路径
-* DOMAIN: 你的后端域名，示例: https://api.xxx.com ，如果此服务和面板在同一台服务器上，可以使用局域网地址（局域网通信速度最佳，且可以关闭 v2board/xboard 面板对外的暴露），示例: http://127.0.0.1:3000
-* PASSWORD: AES 加密密码，用于加解密，请和前端中的 security.password 保持一致
 * MAIL_HOST: SMTP 邮件服务器地址
 * MAIL_PORT: SMTP 邮件服务器端口
 * MAIL_SECURE: SMTP 邮件服务器安全协议，true 或 false
@@ -51,8 +52,9 @@
 * MAIL_PASS: SMTP 邮件服务器密码
 * MAIL_NEWUSER_SUBJECT: 新用户注册邮件主题
 * MAIL_NEWUSER_URL: 新用户注册邮件模板链接，用于向新用户发送注册成功和账号密码的通知，需自行创建一个邮件模板文件，并将其放置在 cdn 上，作为链接，设置到 `MAIL_NEWUSER_URL` 环境变量中，如果不设置，将默认采用纯文本模板
+* CAPTCHA_KEY: 验证码密钥，用于防止恶意提交免登订单攻击
 
-> tips: 如果你只是需要防墙通信，而不需要免登支付注册一体的话，就只需要配置 `PASSWORD` 和 `DOMAIN` 即可，其他配置可以不填
+> tips: 如果你只是需要防墙通信，而不需要免登支付注册一体的话，就只需要配置 `PASSWORD`、 `DOMAIN`、`PORT` 即可，其他配置可以不填
 
 ### 5. 邮件模板
 
@@ -151,6 +153,7 @@ npm -v # Should print "10.9.2".
    export MAIL_PASS=xxx # SMTP 邮件服务器密码
    export MAIL_NEWUSER_SUBJECT='欢迎加入 AirBuddy'
    export MAIL_NEWUSER_URL=https://xxx.com/xxx.html # 新用户注册邮件模板链接
+   export CAPTCHA_KEY=xxx # 验证码密钥，用于防止恶意提交免登订单攻击
    
    # 运行程序 替换为你的实际路径
    /root/.nvm/versions/node/v22.16.0/bin/node /www/wwwroot/security/index.js
@@ -192,6 +195,7 @@ npm -v # Should print "10.9.2".
    export MAIL_PASS=xxx # SMTP 邮件服务器密码
    export MAIL_NEWUSER_SUBJECT='欢迎加入 AirBuddy'
    export MAIL_NEWUSER_URL=https://xxx.com/xxx.html # 新用户注册邮件模板链接
+   export CAPTCHA_KEY=xxx # 验证码密钥，用于防止恶意提交免登订单攻击
    
    # 运行程序
    /www/wwwroot/security/airbuddy-security-executable # 替换为你的实际路径
