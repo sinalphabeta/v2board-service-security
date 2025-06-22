@@ -1,5 +1,5 @@
+import type { CaptchaType } from '../types/captcha'
 import { createHash } from 'node:crypto'
-// @ts-ignore
 import CaptchaPng from '../captchapng/captchapng'
 
 function generateContrastColors(): {
@@ -37,22 +37,22 @@ export async function generateCaptchaData() {
 
 export function generateCaptchaHash(options: {
   code: string
-  key: string
+  type: CaptchaType
   timestamp: number
   captchaKey: string
 }): string {
-  const { code, key, timestamp, captchaKey } = options
-  return createHash('sha256').update(`${timestamp}${code.toLowerCase()}${key}${captchaKey}`).digest('base64')
+  const { code, type, timestamp, captchaKey } = options
+  return createHash('sha256').update(`${timestamp}${code.toLowerCase()}${type}${captchaKey}`).digest('base64')
 }
 
 export function verifyCaptchaHash(options: {
   code: string
-  key: string
+  type: CaptchaType
   timestamp: number
   captchaKey: string
   hash: string
 }): boolean {
-  const { code, key, timestamp, captchaKey, hash } = options
-  const verifyHash = generateCaptchaHash({ code, key, timestamp, captchaKey })
+  const { code, type, timestamp, captchaKey, hash } = options
+  const verifyHash = generateCaptchaHash({ code, type, timestamp, captchaKey })
   return verifyHash === hash
 }
