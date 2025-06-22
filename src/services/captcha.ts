@@ -123,6 +123,7 @@ export function checkCaptcha(type: CaptchaType, data?: CaptchaCheckOptions) {
 }
 
 export const captchaUrlPath: { path: string, type: CaptchaType }[] = [
+  { path: '/api/v1/r8d/quick/captcha', type: 'quick' },
   { path: '/api/v1/passport/auth/register', type: 'register' },
   { path: '/api/v1/passport/auth/login', type: 'login' },
 ]

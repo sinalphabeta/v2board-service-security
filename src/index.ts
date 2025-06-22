@@ -1,11 +1,22 @@
+import type { CaptchaCheckOptions } from './types/captcha'
 import { bodyParser } from '@koa/bodyparser'
 import cors from '@koa/cors'
 import chalk from 'chalk'
 import Koa from 'koa'
 import { decrypt, encrypt, parsePathname } from './crypto'
-import { domain, encoder, password, port } from './env'
+import {
+  captchaKey,
+  captchaLoginEnabled,
+  captchaQuickOrderEnabled,
+  captchaRegisterEnabled,
+  domain,
+  encoder,
+  password,
+  port,
+} from './env'
 import { router } from './routes'
 import { BackendService } from './services/backend'
+import { captchaUrlPath, checkCaptcha } from './services/captcha'
 import { MailerService } from './services/mailer'
 
 const app = new Koa()
@@ -72,6 +83,28 @@ app.use(async (ctx, next) => {
       }
     }
     console.log('解密请求:', `${ctx.method} ${ctx.request.path}`, `query: ${decryptQuery}`, 'body:', ctx.request.body)
+  }
+
+  if (captchaKey && (captchaQuickOrderEnabled || captchaRegisterEnabled || captchaLoginEnabled)) {
+    const { captcha } = ctx.request.body as { captcha?: CaptchaCheckOptions }
+    const path = ctx.request.path
+    const captchaPathData = captchaUrlPath.find(item => item.path === path)
+    if (captchaPathData) {
+      const checkCaptchaData = checkCaptcha(captchaPathData.type, captcha)
+      if (checkCaptchaData !== true) {
+        ctx.response.status = 500
+        ctx.response.body = {
+          code: checkCaptchaData.code,
+          message: checkCaptchaData.message,
+        }
+        return
+      }
+      console.log(chalk.bgGreen('SUCCESS:'), `图形验证码校验通过 => ${captchaPathData.type} => ${path}`)
+      // 从请求体中移除验证码相关参数
+      if (ctx.request.body && typeof ctx.request.body === 'object') {
+        delete ctx.request.body.captcha
+      }
+    }
   }
 
   await next()

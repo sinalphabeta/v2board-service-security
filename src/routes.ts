@@ -1,11 +1,11 @@
 import type Koa from 'koa'
 import type { PlanPeriodKey } from './services/backend'
-import type { CaptchaCheckOptions, CaptchaType } from './types/captcha'
+import type { CaptchaType } from './types/captcha'
 import * as process from 'node:process'
 import KoaRouter from '@koa/router'
 import { domain, proxyConfig, smtpNewUserSubject } from './env'
 import { BackendService } from './services/backend'
-import { captchaUrlPath, checkCaptcha, generateCaptchaData, generateCaptchaHash } from './services/captcha'
+import { generateCaptchaData, generateCaptchaHash } from './services/captcha'
 import { MailerService } from './services/mailer'
 import { renderHtml } from './utlis'
 
@@ -109,25 +109,13 @@ router.get('/api/v1/r8d/quick/captcha', async (ctx: Koa.Context) => {
  * 创建免登订单
  */
 router.post('/api/v1/r8d/quick/order', async (ctx: Koa.Context) => {
-  const { email, password, planId, period, paymentId, couponCode, captcha } = ctx.request.body as {
+  const { email, password, planId, period, paymentId, couponCode } = ctx.request.body as {
     planId: string
     period: PlanPeriodKey
     paymentId: number
     email: string
     password: string
     couponCode?: string
-    captcha?: CaptchaCheckOptions
-  }
-
-  // 图形验证码校验
-  const checkCaptchaData = checkCaptcha('quick', captcha)
-  if (checkCaptchaData !== true) {
-    ctx.response.status = 500
-    ctx.response.body = {
-      code: checkCaptchaData.code,
-      message: checkCaptchaData.message,
-    }
-    return
   }
 
   // 检查优惠券参数，并计算优惠券类型和金额
@@ -230,32 +218,18 @@ router.all('/api/v1/:segments*', async (ctx: Koa.Context) => {
 
   // 代理请求解析
   const url = new URL(domain as string)
-  const { query, path, rawBody } = ctx.request
+  const { query, path, body } = ctx.request
   query && (url.search = new URLSearchParams(query as Record<string, string | readonly string[]>).toString())
   url.pathname = path
   console.log('代理转发请求:', `${ctx.method} ${url.toString()}`, 'path:', path)
-
-  // 判断 path 是否要 check 图形码
-  const captchaPathData = captchaUrlPath.find(item => item.path === path)
-  if (captchaPathData) {
-    const captchaOptions = ctx.request.body?.captcha as CaptchaCheckOptions | undefined
-    // 图形验证码校验
-    const checkCaptchaData = checkCaptcha(captchaPathData.type, captchaOptions)
-    if (checkCaptchaData !== true) {
-      ctx.response.status = 500
-      ctx.response.body = {
-        code: checkCaptchaData.code,
-        message: checkCaptchaData.message,
-      }
-      return
-    }
-  }
 
   // 代理请求转发
   const response = await fetch(url, {
     method: ctx.method,
     headers,
-    body: rawBody,
+    body: {
+      ...body,
+    },
     verbose: false, // 调试用，输出详细日志
     ...proxyConfig,
   })
