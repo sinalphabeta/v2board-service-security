@@ -218,18 +218,16 @@ router.all('/api/v1/:segments*', async (ctx: Koa.Context) => {
 
   // 代理请求解析
   const url = new URL(domain as string)
-  const { query, path, body } = ctx.request
+  const { query, path, body, rawBody } = ctx.request
   query && (url.search = new URLSearchParams(query as Record<string, string | readonly string[]>).toString())
   url.pathname = path
-  console.log('代理转发请求:', `${ctx.method} ${url.toString()}`, 'path:', path)
+  console.log('代理转发请求:', `${ctx.method} ${url.toString()}`, 'path:', path, 'body:', body, 'rawBody:', rawBody)
 
   // 代理请求转发
   const response = await fetch(url, {
     method: ctx.method,
     headers,
-    body: {
-      ...body,
-    },
+    body: JSON.stringify(body),
     verbose: false, // 调试用，输出详细日志
     ...proxyConfig,
   })
