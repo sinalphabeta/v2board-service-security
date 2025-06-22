@@ -1,11 +1,13 @@
 import type Koa from 'koa'
 import type { PlanPeriodKey } from './services/backend'
+import type { CaptchaType } from './types/captcha'
 import * as process from 'node:process'
 import KoaRouter from '@koa/router'
-import { domain, proxyConfig } from './env'
+import { domain, proxyConfig, smtpNewUserSubject } from './env'
 import { BackendService } from './services/backend'
 import { generateCaptchaData, generateCaptchaHash, verifyCaptchaHash } from './services/captcha'
 import { MailerService } from './services/mailer'
+import { renderHtml } from './utlis'
 
 export const router = new KoaRouter()
 
@@ -75,14 +77,14 @@ router.get('/api/v1/r8d/quick/captcha', async (ctx: Koa.Context) => {
     }
     return
   }
-  const { key } = ctx.request.query as { key: string }
+  const { type } = ctx.request.query as { type: CaptchaType }
   try {
     const timestamp = Date.now()
 
     const { code, dataURL } = await generateCaptchaData()
     const hash = generateCaptchaHash({
       code,
-      key,
+      type,
       timestamp,
       captchaKey,
     })
@@ -115,7 +117,7 @@ router.post('/api/v1/r8d/quick/order', async (ctx: Koa.Context) => {
     password: string
     couponCode?: string
     captcha?: {
-      key: string
+      type: string
       code: string
       timestamp: number
       hash: string
@@ -125,7 +127,7 @@ router.post('/api/v1/r8d/quick/order', async (ctx: Koa.Context) => {
   const captchaKey = process.env.CAPTCHA_KEY
   if (captchaKey) {
     // 检查是否提供了验证码
-    if (!captcha || !captcha.code || !captcha.key || !captcha.timestamp || !captcha.hash) {
+    if (!captcha || !captcha.code || !captcha.type || !captcha.timestamp || !captcha.hash) {
       ctx.response.status = 500
       ctx.response.body = {
         code: 502,
@@ -133,7 +135,7 @@ router.post('/api/v1/r8d/quick/order', async (ctx: Koa.Context) => {
       }
       return
     }
-    const { code, key, timestamp, hash } = captcha
+    const { code, type, timestamp, hash } = captcha as { code: string, type: CaptchaType, timestamp: number, hash: string }
     // 检查时间戳是否在有效范围内
     if (Date.now() - Number(captcha.timestamp) > 5 * 60 * 1000) {
       ctx.response.status = 500
@@ -144,7 +146,7 @@ router.post('/api/v1/r8d/quick/order', async (ctx: Koa.Context) => {
       return
     }
     // 验证验证码哈希
-    if (!verifyCaptchaHash({ code, key, timestamp, captchaKey, hash })) {
+    if (!verifyCaptchaHash({ code, type, timestamp, captchaKey, hash })) {
       ctx.response.status = 500
       ctx.response.body = {
         code: 502,
@@ -217,7 +219,15 @@ router.post('/api/v1/r8d/quick/order', async (ctx: Koa.Context) => {
     paymentId, // 默认使用支付宝支付
   })
 
-  MailerService.instance.sendNewUser(email, password)
+  // 发送新用户邮件
+  const template = MailerService.instance.newUserTemplate
+    ? {
+        html: renderHtml(MailerService.instance.newUserTemplate, { email, password }),
+      }
+    : {
+        text: `${smtpNewUserSubject}！\n\n您的账号信息：\n邮箱: ${email}\n密码: ${password}\n\n请妥善保管您的账号信息。`,
+      }
+  MailerService.instance.sendMail(email, smtpNewUserSubject || '通知', template)
 
   ctx.response.body = {
     authToken,
@@ -243,26 +253,26 @@ router.all('/api/v1/:segments*', async (ctx: Koa.Context) => {
   removeHeaders.forEach(h => headers.delete(h))
 
   // 代理请求
-  const url = new URL(domain)
+  const url = new URL(domain as string)
   const { query, path, rawBody } = ctx.request
   query && (url.search = new URLSearchParams(query as Record<string, string | readonly string[]>).toString())
   url.pathname = path
   console.log('代理转发请求:', `${ctx.method} ${url.toString()}`, 'path:', path)
-  
+
   // 注册路由的验证码校验
   const captchaKey = process.env.CAPTCHA_KEY
   const captchaRegisterEnabled = process.env.CAPTCHA_EREGISTRATION_ENABLED === 'true'
   const IsRegistrationPath = path === '/api/v1/passport/auth/register'
   if (captchaKey && captchaRegisterEnabled && IsRegistrationPath) {
     const body = ctx.request.body as {
-      email: string,
-      password: string,
-      email_code: string,
-      invite_code?: string,
-      recaptcha_data?: string,
+      email: string
+      password: string
+      email_code: string
+      invite_code?: string
+      recaptcha_data?: string
       captcha?: {
-        key: string
         code: string
+        type: CaptchaType
         timestamp: number
         hash: string
       }
@@ -276,7 +286,7 @@ router.all('/api/v1/:segments*', async (ctx: Koa.Context) => {
       }
       return
     }
-    const { code, key, timestamp, hash } = body.captcha
+    const { code, type, timestamp, hash } = body.captcha
     // 检查时间戳是否在有效范围内
     if (Date.now() - Number(timestamp) > 5 * 60 * 1000) {
       ctx.response.status = 500
@@ -287,7 +297,7 @@ router.all('/api/v1/:segments*', async (ctx: Koa.Context) => {
       return
     }
     // 验证验证码哈希
-    if (!verifyCaptchaHash({ code, key, timestamp, captchaKey, hash })) {
+    if (!verifyCaptchaHash({ code, type, timestamp, captchaKey, hash })) {
       ctx.response.status = 500
       ctx.response.body = {
         code: 502,

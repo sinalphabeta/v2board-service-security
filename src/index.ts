@@ -1,8 +1,9 @@
 import { bodyParser } from '@koa/bodyparser'
 import cors from '@koa/cors'
+import chalk from 'chalk'
 import Koa from 'koa'
 import { decrypt, encrypt, parsePathname } from './crypto'
-import { domain, encoder, port } from './env'
+import { domain, encoder, password, port } from './env'
 import { router } from './routes'
 import { BackendService } from './services/backend'
 import { MailerService } from './services/mailer'
@@ -100,13 +101,16 @@ app.use(async (ctx, next) => {
 app.use(router.routes())
 
 ;(async () => {
-  if (!BackendService.instance.headerAuth) {
-    await BackendService.instance.initAdminToken(process.env.ADMIN_EMAIL as string, process.env.ADMIN_PASSWORD as string)
+  if (!domain || !password) {
+    console.error(chalk.bgRedBright('ERROR:'), '请设置环境变量 DOMAIN 和 PASSWORD')
+    process.exit(1)
   }
+
+  await BackendService.instance.initAdminToken()
   await MailerService.instance.init()
 
   // 启动服务器
   app.listen(port, () => {
-    console.log(`Airbuddy Security is running on http://localhost:${port}`)
+    console.log(chalk.bgGreen('SUCCESS:'), `Airbuddy Security is running on http://localhost:${port}`)
   })
 })()

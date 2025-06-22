@@ -1,4 +1,5 @@
-import { proxyConfig } from '../env'
+import chalk from 'chalk'
+import { adminApi, adminEmail, adminPassword, domain, proxyConfig } from '../env'
 
 export class BackendService {
   static _instance: BackendService
@@ -10,14 +11,17 @@ export class BackendService {
     return this._instance
   }
 
-  headerAuth: string
-  apiPrefix: string
-  origin: string
+  origin: string | undefined
+  apiPrefix: string | undefined
+  headerAuth: string | undefined
 
   private constructor() {
-    this.headerAuth = process.env.ADMIN_TOKEN as string
-    this.apiPrefix = process.env.BACKEND_API_PREFIX as string
-    this.origin = process.env.DOMAIN as string
+    if (!adminApi || !adminEmail || !adminPassword) {
+      console.warn(chalk.bgYellow('WARNING:'), '无法使用免登接口，请设置环境变量 ADMIN_API_PREFIX, ADMIN_EMAIL 和 ADMIN_PASSWORD')
+      return
+    }
+    this.apiPrefix = adminApi
+    this.origin = domain
   }
 
   api(api: string) {
@@ -37,7 +41,7 @@ export class BackendService {
       ...init,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': this.headerAuth,
+        'Authorization': this.headerAuth!,
         ...init.headers,
       },
       verbose: true,
@@ -47,9 +51,13 @@ export class BackendService {
     return await response.json() as Promise<T>
   }
 
-  async initAdminToken(email: string, password: string) {
-    this.headerAuth = await this.getUserToken(email, password)
-    console.log('AdminToken 初始化完成:', this.headerAuth)
+  async initAdminToken() {
+    if (!adminApi || !adminEmail || !adminPassword) {
+      console.warn(chalk.bgYellow('WARNING:'), '无法初始化 AdminToken，请设置环境变量 ADMIN_API_PREFIX, ADMIN_EMAIL 和 ADMIN_PASSWORD')
+      return
+    }
+    this.headerAuth = await this.getUserToken(adminEmail, adminPassword)
+    console.log(chalk.bgGreen('SUCCESS:'), 'AdminToken 初始化完成:', this.headerAuth)
   }
 
   async getPlanList() {
