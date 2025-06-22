@@ -1,5 +1,6 @@
 import type { CaptchaCheckOptions, CaptchaType } from '../types/captcha'
 import { createHash } from 'node:crypto'
+import chalk from 'chalk'
 import CaptchaPng from '../captchapng/captchapng'
 import { captchaKey, captchaLoginEnabled, captchaQuickOrderEnabled, captchaRegisterEnabled } from '../env'
 
@@ -80,6 +81,7 @@ export function checkCaptcha(type: CaptchaType, data?: CaptchaCheckOptions) {
       break
   }
   if (!hasCheck) {
+    console.log(chalk.bgGrey('PASS:'), `${type}路由 =>  图形验证码校验跳过`)
     return true
   }
 
@@ -119,6 +121,7 @@ export function checkCaptcha(type: CaptchaType, data?: CaptchaCheckOptions) {
     }
   }
 
+  console.log(chalk.bgGreen('SUCCESS:'), `${type}路由 =>  图形验证码校验通过`)
   return true
 }
 

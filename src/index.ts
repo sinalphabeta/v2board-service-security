@@ -89,9 +89,6 @@ app.use(async (ctx, next) => {
     const captchaPathData = captchaUrlPath.find(item => item.path === ctx.request.path)
     if (captchaPathData) {
       const bodyData = ctx.request.body as { captcha?: CaptchaCheckOptions }
-      console.log('captcha see body:', ctx.request.body)
-      console.log('captcha see rawBody:', ctx.request.rawBody)
-      console.log('captcha see data:', bodyData.captcha)
       const checkCaptchaData = checkCaptcha(captchaPathData.type, bodyData.captcha)
       if (checkCaptchaData !== true) {
         ctx.response.status = 500
@@ -101,7 +98,6 @@ app.use(async (ctx, next) => {
         }
         return
       }
-      console.log(chalk.bgGreen('SUCCESS:'), `图形验证码校验通过 => ${captchaPathData.type} => ${captchaPathData.path}`)
       // 从请求体中移除验证码相关参数
       if (ctx.request.body && typeof ctx.request.body === 'object') {
         delete ctx.request.body.captcha
