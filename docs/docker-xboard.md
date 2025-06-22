@@ -4,7 +4,7 @@
 
 可以和现有的 xboard 面板服务使用局域网无缝对接，关闭 xboard 面板对外端口暴露， 只保留 security 服务的端口暴露，避免 xboard 面板被外网攻击
 
-## 1. 下载 security 镜像并导入到 docker
+### 1. 下载 security 镜像并导入到 docker
 
 可以从 [release](https://github.com/dc8683/v2board-service-security/releases) 中下载 docker 产物，文件名称为 `airbuddy-security-docker-image-版本号.tar`，也可以在服务器终端使用以下命令直接下载
 
@@ -16,7 +16,7 @@
 
 ![](https://github.com/dc8683/picx-images-hosting/raw/master/docs/Clipboard---2025-06-17-16.34.38.2obsamib0p.webp)
 
-## 2. 现有 xboard docker compose 加入 security 的编排
+### 2. 现有 xboard docker compose 加入 security 的编排
 
 再修改现有的 xboard docker compose 之前，进入到 xb 目录下的 `compose.yml` 文件所在目录，在终端中执行 `docker compose down` 命令来停止现有的 xboard 服务，然后打开 `compose.yml` 文件，添加以下内容到 `services` 下:
 
@@ -85,12 +85,12 @@ services:
       - MAIL_NEWUSER_URL=${MAIL_NEWUSER_URL}
 ```
 
-## 3. 添加反向代理站点
+### 3. 添加反向代理站点
 
 服务启动后，在网站 - 反向代理，点击添加反代，域名设置你对外公开的域名，目标 url 填写本机地址 + compose 中的端口号，例如上面compose 对应的端口示例: http://127.0.0.1:12020 , 名称可以随意填写，例如 `airbuddy-security`，然后点击提交即可，如下所示:
 
 ![](https://github.com/dc8683/picx-images-hosting/raw/master/docs/fandai.4n7z15bffe.webp)
 
-## 4.查看 security 服务状态
+### 4.查看 security 服务状态
 
 在浏览器中访问 `http://<your-domain>/status`，此页面会显示 security 服务各个模块的运行状态
