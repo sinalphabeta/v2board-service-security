@@ -1,7 +1,26 @@
 export const encoder = new TextEncoder()
-export const password = process.env.PASSWORD
-export const domain = process.env.DOMAIN || 'http://localhost:3000'
 export const port = process.env.PORT || 3000
+// 必备环境变量
+export const domain = process.env.BACKEND_DOMAIN
+export const password = process.env.SEC_PASSWORD
+
+// 用于实现免登接口的管理面板的环境变量
+export const adminApi = process.env.ADMIN_API_PREFIX
+export const adminEmail = process.env.ADMIN_EMAIL
+export const adminPassword = process.env.ADMIN_PASSWORD
+// 邮件服务的环境变量
+export const smtpHost = process.env.MAIL_HOST
+export const smtpPort = process.env.MAIL_PORT
+export const smtpSecure = process.env.MAIL_SECURE === 'true'
+export const smtpUser = process.env.MAIL_USER
+export const smtpPassword = process.env.MAIL_PASS
+export const smtpNewUserSubject = process.env.MAIL_NEWUSER_SUBJECT
+export const smtpNewUserTemplate = process.env.MAIL_NEWUSER_URL
+// 图形验证码相关环境变量
+export const captchaKey = process.env.CAPTCHA_KEY
+export const captchaQuickOrderEnabled = process.env.CAPTCHA_QUICK_ORDER_ENABLED === 'true'
+export const captchaRegisterEnabled = process.env.CAPTCHA_EREGISTRATION_ENABLED === 'true'
+
 // 动态代理配置
 export const proxyConfig = process.env.PROXY_URL
   ? { proxy: process.env.PROXY_URL }
