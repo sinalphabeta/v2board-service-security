@@ -89,11 +89,10 @@ const originalPathnameList = [
 
   // 自定义接口
   '/api/v1/r8d/quick/plan', // 免登获取套餐列表
-  '/api/v1/r8d/quick/order/payment', // 免登获取订单支持的付款方式
+  '/api/v1/r8d/quick/payment', // 免登获取付款方式
   '/api/v1/r8d/quick/coupon', // 免登获取优惠券信息
-  '/api/v1/r8d/quick/order', // 创建免登订单
-  '/api/v1/r8d/quick/order/detail/:id', // 免登获取订单详情
   '/api/v1/r8d/quick/captcha', // 获取图形验证码
+  '/api/v1/r8d/quick/order', // 创建免登订单
 ]
 
 async function genPathnameMap() {

@@ -5,7 +5,7 @@ import * as process from 'node:process'
 import KoaRouter from '@koa/router'
 import { domain, proxyConfig, smtpNewUserSubject } from './env'
 import { BackendService } from './services/backend'
-import { checkCaptcha, generateCaptchaData, generateCaptchaHash, verifyCaptchaHash } from './services/captcha'
+import { captchaUrlPath, checkCaptcha, generateCaptchaData, generateCaptchaHash } from './services/captcha'
 import { MailerService } from './services/mailer'
 import { renderHtml } from './utlis'
 
@@ -32,7 +32,7 @@ router.get('/api/v1/r8d/quick/plan', async (ctx: Koa.Context) => {
 /**
  * 免登获取订单支持的付款方式
  */
-router.get('/api/v1/r8d/quick/order/payment', async (ctx: Koa.Context) => {
+router.get('/api/v1/r8d/quick/payment', async (ctx: Koa.Context) => {
   try {
     ctx.response.body = await BackendService.instance.getOrderPayments()
   }
@@ -228,56 +228,30 @@ router.all('/api/v1/:segments*', async (ctx: Koa.Context) => {
   ]
   removeHeaders.forEach(h => headers.delete(h))
 
-  // 代理请求
+  // 代理请求解析
   const url = new URL(domain as string)
   const { query, path, rawBody } = ctx.request
   query && (url.search = new URLSearchParams(query as Record<string, string | readonly string[]>).toString())
   url.pathname = path
   console.log('代理转发请求:', `${ctx.method} ${url.toString()}`, 'path:', path)
 
-  // 注册路由的验证码校验
-  const captchaKey = process.env.CAPTCHA_KEY
-  const captchaRegisterEnabled = process.env.CAPTCHA_EREGISTRATION_ENABLED === 'true'
-  const IsRegistrationPath = path === '/api/v1/passport/auth/register'
-  if (captchaKey && captchaRegisterEnabled && IsRegistrationPath) {
-    const body = ctx.request.body as {
-      email: string
-      password: string
-      email_code: string
-      invite_code?: string
-      recaptcha_data?: string
-      captcha?: CaptchaCheckOptions
-    }
-    // 检查是否提供了验证码
-    if (!body.captcha) {
+  // 判断 path 是否要 check 图形码
+  const captchaPathData = captchaUrlPath.find(item => item.path === path)
+  if (captchaPathData) {
+    const captchaOptions = ctx.request.body?.captcha as CaptchaCheckOptions | undefined
+    // 图形验证码校验
+    const checkCaptchaData = checkCaptcha(captchaPathData.type, captchaOptions)
+    if (checkCaptchaData !== true) {
       ctx.response.status = 500
       ctx.response.body = {
-        code: 502,
-        message: '缺少验证码',
-      }
-      return
-    }
-    const { code, type, timestamp, hash } = body.captcha
-    // 检查时间戳是否在有效范围内
-    if (Date.now() - Number(timestamp) > 5 * 60 * 1000) {
-      ctx.response.status = 500
-      ctx.response.body = {
-        code: 502,
-        message: '验证码已过期',
-      }
-      return
-    }
-    // 验证验证码哈希
-    if (!verifyCaptchaHash({ code, type, timestamp, captchaKey, hash })) {
-      ctx.response.status = 500
-      ctx.response.body = {
-        code: 502,
-        message: '验证码错误',
+        code: checkCaptchaData.code,
+        message: checkCaptchaData.message,
       }
       return
     }
   }
 
+  // 代理请求转发
   const response = await fetch(url, {
     method: ctx.method,
     headers,

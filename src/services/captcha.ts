@@ -63,6 +63,7 @@ export function checkCaptcha(type: CaptchaType, data?: CaptchaCheckOptions) {
     return true
   }
 
+  // 根据类型检查是否启用验证码校验
   let hasCheck: boolean
   switch (type) {
     case 'quick':
@@ -78,7 +79,6 @@ export function checkCaptcha(type: CaptchaType, data?: CaptchaCheckOptions) {
       hasCheck = false
       break
   }
-
   if (!hasCheck) {
     return true
   }
@@ -121,3 +121,8 @@ export function checkCaptcha(type: CaptchaType, data?: CaptchaCheckOptions) {
 
   return true
 }
+
+export const captchaUrlPath: { path: string, type: CaptchaType }[] = [
+  { path: '/api/v1/passport/auth/register', type: 'register' },
+  { path: '/api/v1/passport/auth/login', type: 'login' },
+]
