@@ -3,7 +3,14 @@ import type { PlanPeriodKey } from './services/backend'
 import type { CaptchaType } from './types/captcha'
 import * as process from 'node:process'
 import KoaRouter from '@koa/router'
-import { domain, proxyConfig, smtpNewUserSubject } from './env'
+import {
+  captchaLoginEnabled,
+  captchaQuickOrderEnabled,
+  captchaRegisterEnabled,
+  domain,
+  proxyConfig,
+  smtpNewUserSubject,
+} from './env'
 import { BackendService } from './services/backend'
 import { generateCaptchaData, generateCaptchaHash } from './services/captcha'
 import { MailerService } from './services/mailer'
@@ -78,6 +85,30 @@ router.get('/api/v1/r8d/quick/captcha', async (ctx: Koa.Context) => {
     return
   }
   const { type } = ctx.request.query as { type: CaptchaType }
+  // 根据类型检查是否启用验证码校验
+  let hasCheck: boolean
+  switch (type) {
+    case 'quick':
+      hasCheck = captchaQuickOrderEnabled
+      break
+    case 'register':
+      hasCheck = captchaRegisterEnabled
+      break
+    case 'login':
+      hasCheck = captchaLoginEnabled
+      break
+    default:
+      hasCheck = false
+      break
+  }
+  if (!hasCheck) {
+    ctx.response.status = 200
+    ctx.response.body = {
+      data: null,
+    }
+    return
+  }
+  // 生成验证码数据
   try {
     const timestamp = Date.now()
 
