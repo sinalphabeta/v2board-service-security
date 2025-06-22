@@ -73,6 +73,7 @@ const originalPathnameList = [
   '/api/v1/r8d/quick/coupon', // 免登获取优惠券信息
   '/api/v1/r8d/quick/order', // 创建免登订单
   '/api/v1/r8d/quick/order/detail/:id', // 免登获取订单详情
+  '/api/v1/r8d/quick/captcha', // 获取图形验证码
 ]
 
 async function genPathnameMap() {
