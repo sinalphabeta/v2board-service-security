@@ -4,10 +4,12 @@ import type { CaptchaType } from './types/captcha'
 import * as process from 'node:process'
 import KoaRouter from '@koa/router'
 import {
+  captchaKey,
   captchaLoginEnabled,
   captchaQuickOrderEnabled,
   captchaRegisterEnabled,
   domain,
+  password,
   proxyConfig,
   smtpNewUserSubject,
 } from './env'
@@ -19,6 +21,30 @@ import { renderHtml } from './utlis'
 export const router = new KoaRouter()
 
 // 自定义接口扩展
+/**
+ * 获取服务状态，返回一个页面，告知用户加密通信、免登接口、邮件服务是否正常可用
+ */
+router.get('/status', async (ctx: Koa.Context) => {
+  ctx.response.type = 'text/html'
+  ctx.response.status = 200
+  ctx.response.body = `
+    <html>
+      <head>
+        <title>服务状态 - AirBuddy Security</title>
+      </head>
+      <body>
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100vw; height: 100vh; gap: 4px;">
+          <h1>AirBuddy Security Service Status</h1>
+          <div>加密通信: ${domain && password ? '已启用' : '不可用'}</div>
+          <div>免登接口: ${BackendService.instance.headerAuth !== undefined ? '已启用' : '不可用'}</div>
+          <div>邮件服务: ${MailerService.instance.transport?.verify() ? '已启用' : '不可用'}</div>
+          <div>图形验证码: ${captchaKey ? '已配置' : '未配置'}</div>
+        </div>
+      </body>
+    </html>
+  `
+})
+
 /**
  * 免登获取套餐列表
  */
