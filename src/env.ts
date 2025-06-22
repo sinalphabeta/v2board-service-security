@@ -19,7 +19,7 @@ export const smtpNewUserTemplate = process.env.MAIL_NEWUSER_URL
 // 图形验证码相关环境变量
 export const captchaKey = process.env.CAPTCHA_KEY
 export const captchaQuickOrderEnabled = process.env.CAPTCHA_QUICK_ORDER_ENABLED === 'true'
-export const captchaRegisterEnabled = process.env.CAPTCHA_EREGISTRATION_ENABLED === 'true'
+export const captchaRegisterEnabled = process.env.CAPTCHA_REGISTER_ENABLED === 'true'
 export const captchaLoginEnabled = process.env.CAPTCHA_LOGIN_ENABLED === 'true'
 
 // 动态代理配置
