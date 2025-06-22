@@ -20,6 +20,7 @@ export const smtpNewUserTemplate = process.env.MAIL_NEWUSER_URL
 export const captchaKey = process.env.CAPTCHA_KEY
 export const captchaQuickOrderEnabled = process.env.CAPTCHA_QUICK_ORDER_ENABLED === 'true'
 export const captchaRegisterEnabled = process.env.CAPTCHA_EREGISTRATION_ENABLED === 'true'
+export const captchaLoginEnabled = process.env.CAPTCHA_LOGIN_ENABLED === 'true'
 
 // 动态代理配置
 export const proxyConfig = process.env.PROXY_URL

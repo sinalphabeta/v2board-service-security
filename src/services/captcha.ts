@@ -1,6 +1,7 @@
-import type { CaptchaType } from '../types/captcha'
+import type { CaptchaCheckOptions, CaptchaType } from '../types/captcha'
 import { createHash } from 'node:crypto'
 import CaptchaPng from '../captchapng/captchapng'
+import { captchaKey, captchaLoginEnabled, captchaQuickOrderEnabled, captchaRegisterEnabled } from '../env'
 
 function generateContrastColors(): {
   background: [number, number, number, number]
@@ -55,4 +56,68 @@ export function verifyCaptchaHash(options: {
   const { code, type, timestamp, captchaKey, hash } = options
   const verifyHash = generateCaptchaHash({ code, type, timestamp, captchaKey })
   return verifyHash === hash
+}
+
+export function checkCaptcha(type: CaptchaType, data?: CaptchaCheckOptions) {
+  if (!captchaKey) {
+    return true
+  }
+
+  let hasCheck: boolean
+  switch (type) {
+    case 'quick':
+      hasCheck = captchaQuickOrderEnabled
+      break
+    case 'register':
+      hasCheck = captchaRegisterEnabled
+      break
+    case 'login':
+      hasCheck = captchaLoginEnabled
+      break
+    default:
+      hasCheck = false
+      break
+  }
+
+  if (!hasCheck) {
+    return true
+  }
+
+  // 检查是否提供了验证码
+  if (!data || !data.code || !data.type || !data.timestamp || !data.hash) {
+    return {
+      error: true,
+      code: 502,
+      message: '缺少验证码',
+    }
+  }
+
+  // 检查验证码类型是否一致
+  if (data.type !== type) {
+    return {
+      error: true,
+      code: 502,
+      message: '验证码类型不匹配',
+    }
+  }
+
+  // 检查时间戳是否在有效范围内
+  if (Date.now() - Number(data.timestamp) > 5 * 60 * 1000) {
+    return {
+      error: true,
+      code: 502,
+      message: '验证码已过期',
+    }
+  }
+
+  // 验证验证码哈希
+  if (!verifyCaptchaHash({ code: data.code, type: data.type, timestamp: data.timestamp, captchaKey, hash: data.hash })) {
+    return {
+      error: true,
+      code: 502,
+      message: '验证码无效',
+    }
+  }
+
+  return true
 }
