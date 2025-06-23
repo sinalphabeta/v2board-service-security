@@ -1,5 +1,5 @@
 import chalk from 'chalk'
-import { adminApi, adminEmail, adminPassword, domain, proxyConfig } from '../env'
+import { adminApi, adminEmail, adminPassword, domain, panel, proxyConfig } from '../env'
 
 interface Plan {
   id: number
@@ -33,6 +33,7 @@ export class BackendService {
     return this._instance
   }
 
+  panel: 'v2b' | 'xb' = 'v2b'
   origin: string | undefined
   apiPrefix: string | undefined
   headerAuth: string | undefined
@@ -42,8 +43,9 @@ export class BackendService {
       console.warn(chalk.bgYellow('WARNING:'), '无法使用免登接口，请设置环境变量 ADMIN_API_PREFIX, ADMIN_EMAIL 和 ADMIN_PASSWORD')
       return
     }
-    this.apiPrefix = adminApi
+    this.panel = panel || 'v2b'
     this.origin = domain
+    this.apiPrefix = adminApi
   }
 
   adminApi(api: string) {
@@ -83,18 +85,35 @@ export class BackendService {
   }
 
   async checkUser(email: string) {
-    const url = this.adminApi('user/fetch')
-    const method = 'GET'
+    const reqInit: RequestInit = {
+      method: this.panel === 'xb' ? 'POST' : 'GET',
+      headers: {
+        'Content-Type': this.panel === 'xb' ? 'application/json' : 'application/x-www-form-urlencoded',
+      },
+      body: JSON.stringify({
+        current: 1,
+        pageSize: 20,
+        sort: [],
+        filter: [{
+          id: 'email',
+          value: `eq:${email}`,
+        }],
+      }),
+    }
 
-    const params = new URLSearchParams({
-      'filter[0][key]': 'email',
-      'filter[0][condition]': '模糊',
-      'filter[0][value]': email,
-    })
+    let url = this.adminApi('user/fetch')
+    if (this.panel === 'v2b') {
+      const params = new URLSearchParams({
+        'filter[0][key]': 'email',
+        'filter[0][condition]': '模糊',
+        'filter[0][value]': email,
+      })
+      url = `${url}?${params.toString()}`
+      delete reqInit.body
+    }
 
-    return await this.request<{ data: { id: number }[] }>(`${url}?${params.toString()}`, {
-      method,
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    return await this.request<{ data: { id: number }[] }>(url, {
+      ...reqInit,
     }).then(res => !!res.data[0])
   }
 
