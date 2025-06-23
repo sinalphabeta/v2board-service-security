@@ -167,13 +167,13 @@ router.get('/api/v1/r8d/quick/captcha', async (ctx: Koa.Context) => {
  * 创建免登订单
  */
 router.post('/api/v1/r8d/quick/order', async (ctx: Koa.Context) => {
-  const { email, password, planId, period, couponCode, invite_code } = ctx.request.body as {
+  const { email, password, planId, period, couponCode, inviteCode } = ctx.request.body as {
     planId: string
     period: PlanPeriodKey
     email: string
     password: string
     couponCode?: string
-    invite_code?: string
+    inviteCode?: string
   }
 
   // 检查优惠券参数，并计算优惠券类型和金额
@@ -210,7 +210,7 @@ router.post('/api/v1/r8d/quick/order', async (ctx: Koa.Context) => {
   }
 
   // 创建用户
-  const authToken = await BackendService.instance.createUser({ email, password, invite_code })
+  const authToken = await BackendService.instance.createUser({ email, password, invite_code: inviteCode })
   console.log('createUser:', email, authToken)
 
   // 创建订单
