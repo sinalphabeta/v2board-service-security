@@ -166,29 +166,24 @@ router.get('/api/v1/r8d/quick/captcha', async (ctx: Koa.Context) => {
  * 创建免登订单
  */
 router.post('/api/v1/r8d/quick/order', async (ctx: Koa.Context) => {
-  const { email, password, planId, period, paymentId, couponCode } = ctx.request.body as {
+  const { email, password, planId, period, paymentId, couponCode, invite_code } = ctx.request.body as {
     planId: string
     period: PlanPeriodKey
     paymentId: number
     email: string
     password: string
     couponCode?: string
+    invite_code?: string
   }
 
   // 检查优惠券参数，并计算优惠券类型和金额
-  let couponType: 0 | 1 | 2 = 0
-  let couponValue = 0
   if (couponCode) {
     const couponData = couponCode && await BackendService.instance.getCouponData({
       code: couponCode,
       plan_id: planId.toString(),
       period,
     })
-    if (couponData && couponData.data && couponData.data.value) {
-      couponType = couponData.data.type
-      couponValue = couponData.data.value
-    }
-    else {
+    if (!couponData || !couponData.data || !couponData.data.value) {
       // eslint-disable-next-line ts/ban-ts-comment
       // @ts-expect-error
       const text = couponData.message || '优惠券无效'
@@ -214,29 +209,35 @@ router.post('/api/v1/r8d/quick/order', async (ctx: Koa.Context) => {
     return
   }
 
-  const plans = await BackendService.instance.getPlanList()
-  const findPlan = plans.find(plan => plan.id.toString() === planId)!
-  const originalPrice = findPlan[period] || 0
-  const preferential = couponValue === 0 ? 0 : (couponType === 1 ? couponValue * 0.01 : originalPrice * (couponValue * 0.01))
-  const totalAmount = originalPrice - preferential
+  // const plans = await BackendService.instance.getPlanList()
+  // const findPlan = plans.find(plan => plan.id.toString() === planId)!
+  // const originalPrice = findPlan[period] || 0
+  // const preferential = couponValue === 0 ? 0 : (couponType === 1 ? couponValue * 0.01 : originalPrice * (couponValue * 0.01))
+  // const totalAmount = originalPrice - preferential
 
   // 创建用户
-  const authToken = await BackendService.instance.createUser({ email, password })
+  const authToken = await BackendService.instance.createUser({ email, password, invite_code })
   console.log('createUser:', email, authToken)
 
   // 创建订单
   const order = await BackendService.instance.createOrder({
-    email,
-    planId,
+    token: authToken,
+    plan_id: planId,
     period,
-    totalAmount,
+    coupon_code: couponCode,
   })
+  // const order = await BackendService.instance.createOrderWithAdmin({
+  //   email,
+  //   planId,
+  //   period,
+  //   totalAmount,
+  // })
   console.log('createOrder:', email, order)
 
   // 获取支付链接
-  const payment = await BackendService.instance.getOrderCheckout({
-    trade_no: order,
+  const payment = await BackendService.instance.checkoutOrder({
     token: authToken,
+    trade_no: order,
     paymentId, // 默认使用支付宝支付
   })
 

@@ -1,6 +1,28 @@
 import chalk from 'chalk'
 import { adminApi, adminEmail, adminPassword, domain, proxyConfig } from '../env'
 
+interface Plan {
+  id: number
+  // "group_id": 1,
+  show: 1 | 0
+  month_price: null | number
+  quarter_price: null | number
+  half_year_price: null | number
+  year_price: null | number
+  two_year_price: null | number
+  three_year_price: null | number
+  onetime_price: null | number
+  reset_price: null | number
+}
+
+interface Payment {
+  id: number
+  payment: string
+  enable: 0 | 1
+}
+
+export type PlanPeriodKey = 'month_price' | 'quarter_price' | 'half_year_price' | 'year_price' | 'two_year_price' | 'three_year_price' | 'onetime_price' | 'reset_price'
+
 export class BackendService {
   static _instance: BackendService
 
@@ -24,7 +46,7 @@ export class BackendService {
     this.origin = domain
   }
 
-  api(api: string) {
+  adminApi(api: string) {
     return `${this.origin}/api/v1/${this.apiPrefix}/${api}`
   }
 
@@ -58,6 +80,38 @@ export class BackendService {
     }
     this.headerAuth = await this.getUserToken(adminEmail, adminPassword)
     console.log(chalk.bgGreen('SUCCESS:'), 'AdminToken 初始化完成:', this.headerAuth)
+  }
+
+  async checkUser(email: string) {
+    const url = this.adminApi('user/fetch')
+    const method = 'GET'
+
+    const params = new URLSearchParams({
+      'filter[0][key]': 'email',
+      'filter[0][condition]': '模糊',
+      'filter[0][value]': email,
+    })
+
+    return await this.request<{ data: { id: number }[] }>(`${url}?${params.toString()}`, {
+      method,
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    }).then(res => !!res.data[0])
+  }
+
+  async getUserToken(email: string, password: string) {
+    const url = this.passportApi('auth/login')
+    const method = 'POST'
+
+    const user = await this.request<{ data: { auth_data: string } }>(url, {
+      method,
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    return user.data.auth_data
   }
 
   async getPlanList() {
@@ -107,107 +161,52 @@ export class BackendService {
     }))
   }
 
-  async checkUser(email: string) {
-    const url = this.api('user/fetch')
-    const method = 'GET'
-
-    const params = new URLSearchParams({
-      'filter[0][key]': 'email',
-      'filter[0][condition]': '模糊',
-      'filter[0][value]': email,
-    })
-
-    return await this.request<{ data: { id: number }[] }>(`${url}?${params.toString()}`, {
-      method,
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    }).then(res => !!res.data[0])
-  }
-
-  async createUser({ email, password }: { email: string, password: string }) {
-    const url = this.api('user/generate')
+  async createUser({ email, password, invite_code }: { email: string, password: string, invite_code?: string }) {
+    const url = this.passportApi('auth/register')
     const method = 'POST'
 
-    const [emailPrefix, emailSuffix] = email.split('@')
-
-    await this.request(url, {
-      method,
-      body: new URLSearchParams({
-        email_prefix: emailPrefix,
-        email_suffix: emailSuffix,
-        password,
-      }),
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    })
-
-    return await this.getUserToken(email, password)
-  }
-
-  async createOrder({
-    email,
-    planId,
-    period,
-    totalAmount,
-  }: {
-    email: string
-    planId: string
-    period: string // year_price
-    totalAmount: number// ￥199.00
-  }) {
-    if (!totalAmount || totalAmount === 0) {
-      throw new Error('totalAmount NaN')
-    }
-
-    const url = this.api('order/assign')
-    const method = 'POST'
-    console.log({
-      email,
-      plan_id: planId.toString(),
-      period,
-      total_amount: totalAmount,
-    })
-    return (await this.request<{ data: string }>(url, {
-      method,
-      body: new URLSearchParams({
-        email,
-        plan_id: planId,
-        period,
-        total_amount: totalAmount.toString(),
-      }),
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    })).data
-  }
-
-  async getUserToken(email: string, password: string) {
-    const url = this.passportApi('auth/login')
-    const method = 'POST'
-
-    const user = await this.request<{ data: { auth_data: string } }>(url, {
+    const user = await this.request<{
+      data: {
+        token: string
+        auth_data: string
+      }
+    }>(url, {
       method,
       body: JSON.stringify({
         email,
         password,
+        ...(invite_code ? { invite_code } : {}),
       }),
-      headers: { 'Content-Type': 'application/json' },
     })
 
     return user.data.auth_data
   }
 
-  async getOrderCheckout(
-    {
-      trade_no,
-      token,
-      paymentId,
-    }: {
-      trade_no: string
-      token: string
-      paymentId: number
-    },
+  async createOrder({ token, plan_id, period, coupon_code }: { token: string, plan_id: string | number, period: string, coupon_code?: string }) {
+    const url = this.userApi('order/save')
+    const method = 'POST'
+    const res = await this.request<{ data: string }>(url, {
+      method,
+      body: JSON.stringify({
+        plan_id: plan_id.toString(),
+        period,
+        ...(coupon_code ? { coupon_code } : {}),
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': token,
+      },
+    })
+
+    return res.data
+  }
+
+  async checkoutOrder({ token, trade_no, paymentId }: { token: string, trade_no: string, paymentId: number },
   ) {
     const url = this.userApi('order/checkout')
     const method = 'POST'
 
-    const order = await this.request<{
+    return await this.request<{
       data: string
       type: 0 | 1 | -1 // 0:qrcode 1:url -1:0元支付成功
     }>(url, {
@@ -221,29 +220,5 @@ export class BackendService {
         'Authorization': token,
       },
     })
-
-    return order
   }
 }
-
-interface Plan {
-  id: number
-  // "group_id": 1,
-  show: 1 | 0
-  month_price: null | number
-  quarter_price: null | number
-  half_year_price: null | number
-  year_price: null | number
-  two_year_price: null | number
-  three_year_price: null | number
-  onetime_price: null | number
-  reset_price: null | number
-}
-
-interface Payment {
-  id: number
-  payment: string
-  enable: 0 | 1
-}
-
-export type PlanPeriodKey = 'month_price' | 'quarter_price' | 'half_year_price' | 'year_price' | 'two_year_price' | 'three_year_price' | 'onetime_price' | 'reset_price'
