@@ -85,6 +85,5 @@ export class MailerService {
       from: this.auth.user,
       to: email,
     })
-    console.log(chalk.bgGreen('SUCCESS:'), '发送新用户邮件成功:', email)
   }
 }
