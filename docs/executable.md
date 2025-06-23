@@ -11,19 +11,28 @@
 
 # 设置环境变量, 参考上面的环境变量说明
 export PORT=12020 # 端口号
+export BACKEND_DOMAIN=https://xxx.r8d.pro # 面板域名
+export SEC_PASSWORD=89236475 # AES 加密密码，前端和后端需要保持一致
+
+### 免登接口所需要的环境变量
+export ADMIN_API_PREFIX=xxx # 面板管理后端 API 前缀，即管理面板的后台路径，例如: /5cba3s
 export ADMIN_EMAIL=xxx@gmail.com # 面板管理员邮箱账号
 export ADMIN_PASSWORD=xxxx # 面板管理员密码
-export BACKEND_API_PREFIX=xxx # 面板管理后端 API 前缀
-export DOMAIN=https://xxx.r8d.pro
-export PASSWORD=89236475 # AES 加密密码，前端和后端需要保持一致
+
+### 邮件服务配置
 export MAIL_HOST=smtp.gmail.com # SMTP 邮件服务器地址
 export MAIL_PORT=465
 export MAIL_SECURE=true
 export MAIL_USER=xxx@gmail.com # SMTP 邮件服务器用户名
 export MAIL_PASS=xxx # SMTP 邮件服务器密码
-export MAIL_NEWUSER_SUBJECT='欢迎加入 AirBuddy'
-export MAIL_NEWUSER_URL=https://xxx.com/xxx.html # 新用户注册邮件模板链接
+export MAIL_NEWUSER_SUBJECT='欢迎加入 AirBuddy' # 新用户注册邮件主题
+export MAIL_NEWUSER_URL=https://xxx.com/xxx.html # 新用户注册邮件模板 URL
+
+### 图形验证码配置
 export CAPTCHA_KEY=xxx # 验证码密钥，用于防止恶意提交免登订单攻击
+export CAPTCHA_QUICK_ORDER_ENABLED=true # 是否启用免登创建支付订单图形验证码
+export CAPTCHA_REGISTER_ENABLED=true # 是否启用注册图形验证码
+export CAPTCHA_LOGIN_ENABLED=true # 是否启用登录图形验证码
 
 # 运行程序
 /www/wwwroot/security/airbuddy-security-executable # 替换为你的实际路径

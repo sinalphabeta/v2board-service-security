@@ -34,18 +34,25 @@
        - "12020:3000"
      environment:
        # 以下是环境变量配置，请根据实际情况修改
-       - ADMIN_EMAIL=${ADMIN_EMAIL}
-       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
-       - BACKEND_API_PREFIX=${BACKEND_API_PREFIX}
-       - DOMAIN=${DOMAIN}
-       - PASSWORD=${PASSWORD}
-       - MAIL_HOST=${MAIL_HOST}
-       - MAIL_PORT=${MAIL_PORT}
-       - MAIL_SECURE=${MAIL_SECURE}
-       - MAIL_USER=${MAIL_USER}
-       - MAIL_PASS=${MAIL_PASS}
-       - MAIL_NEWUSER_SUBJECT=${MAIL_NEWUSER_SUBJECT}
-       - MAIL_NEWUSER_URL=${MAIL_NEWUSER_URL}
+       - BACKEND_DOMAIN=${DOMAIN} # 面板后端 API 域名
+       - SEC_PASSWORD=${PASSWORD} # AES 加密密码，用于加解密，请和前端中的 security.password 保持一致
+       # 用于实现免登接口的管理面板配置
+       - ADMIN_API_PREFIX=${BACKEND_API_PREFIX} # 面板的后台管理路径
+       - ADMIN_EMAIL=${ADMIN_EMAIL} # 面板管理员邮箱
+       - ADMIN_PASSWORD=${ADMIN_PASSWORD} # 面板管理员密码
+       # 邮件服务配置
+       - MAIL_HOST=${MAIL_HOST} # SMTP 邮件服务器地址
+       - MAIL_PORT=${MAIL_PORT} # SMTP 邮件服务器端口
+       - MAIL_SECURE=${MAIL_SECURE} # 是否使用安全连接
+       - MAIL_USER=${MAIL_USER} # SMTP 邮件服务器用户名
+       - MAIL_PASS=${MAIL_PASS} # SMTP 邮件服务器密码
+       - MAIL_NEWUSER_SUBJECT=${MAIL_NEWUSER_SUBJECT} # 新用户注册邮件主题
+       - MAIL_NEWUSER_URL=${MAIL_NEWUSER_URL} # 新用户注册邮件模板链接，用于向新用户发送注册成功和账号密码的通知，需自行创建一个邮件模板文件，并将其放置在 cdn 上，作为链接，设置到 `MAIL_NEWUSER_URL` 环境变量中，如果不设置，将默认采用纯文本模板
+       # 图形验证码配置
+       - CAPTCHA_KEY=${CAPTCHA_KEY} # 验证码密钥，用于防止恶意提交免登订单攻击
+       - CAPTCHA_QUICK_ORDER_ENABLED=true # 是否启用免登创建支付订单验证码，true 或 false 
+       - CAPTCHA_REGISTER_ENABLED=true # 是否启用注册图形验证码，true 或 false 
+       - CAPTCHA_LOGIN_ENABLED=true # 是否启用登录图形验证码，true 或 false 
  ```
 
 ### 3. 添加反向代理站点

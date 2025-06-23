@@ -111,7 +111,7 @@ CAPTCHA_LOGIN_ENABLED=true # 是否启用登录图形验证码
 适合 xboard 用户，需要在 xboard 的 `compose.yml` 中添加 security 服务，支持局域网和面板通信，提高通信速度，适合有一定经验的用户
 
 ### [docker 一键命令部署](/docs/docker.md)
-终端命令行一键部署操作，适合有经验的用户
+终端命令行一键部署操作，适合有经验的用户，此脚本由 [Tethyiah](http://t.me/Tethyiah) 提供，感谢他的贡献
 
 ### [node.js 快速部署](/docs/node.md)
 最轻量的部署方式，只需运行一个不到 2mb 的 js 文件，即可完成部署，使用守护进程，可视化操作，需要安装 nodejs 环境，适合新手不喜欢 docker 部署方式的用户
