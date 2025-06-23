@@ -49,15 +49,11 @@ export class BackendService {
   }
 
   adminApi(api: string) {
-    return `${this.origin}/api/v1/${this.apiPrefix}/${api}`
+    return `${this.origin}/api/${this.panel === 'xb' ? 'v2' : 'v1'}/${this.apiPrefix}/${api}`
   }
 
   userApi(api: string) {
     return `${this.origin}/api/v1/user/${api}`
-  }
-
-  passportApi(api: string) {
-    return `${this.origin}/api/v1/passport/${api}`
   }
 
   async request<T>(url: string, init: RequestInit) {
@@ -80,11 +76,22 @@ export class BackendService {
       console.warn(chalk.bgYellow('WARNING:'), '无法初始化 AdminToken，请设置环境变量 ADMIN_API_PREFIX, ADMIN_EMAIL 和 ADMIN_PASSWORD')
       return
     }
-    this.headerAuth = await this.getUserToken(adminEmail, adminPassword)
+    const url = `${this.origin}/api/${this.panel === 'xb' ? 'v2' : 'v1'}/passport/auth/login`
+    const method = 'POST'
+    const user = await this.request<{ data: { auth_data: string } }>(url, {
+      method,
+      body: JSON.stringify({
+        email: adminEmail,
+        password: adminPassword,
+      }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+    this.headerAuth = user.data.auth_data
     console.log(chalk.bgGreen('SUCCESS:'), 'AdminToken 初始化完成:', this.headerAuth)
   }
 
   async checkUser(email: string) {
+    let url = this.adminApi('user/fetch')
     const reqInit: RequestInit = {
       method: this.panel === 'xb' ? 'POST' : 'GET',
       headers: {
@@ -101,36 +108,19 @@ export class BackendService {
       }),
     }
 
-    let url = this.adminApi('user/fetch')
     if (this.panel === 'v2b') {
       const params = new URLSearchParams({
         'filter[0][key]': 'email',
         'filter[0][condition]': '模糊',
         'filter[0][value]': email,
       })
-      url = `${url}?${params.toString()}`
+      url = `$${url}?${params.toString()}`
       delete reqInit.body
     }
 
     return await this.request<{ data: { id: number }[] }>(url, {
       ...reqInit,
     }).then(res => !!res.data[0])
-  }
-
-  async getUserToken(email: string, password: string) {
-    const url = this.passportApi('auth/login')
-    const method = 'POST'
-
-    const user = await this.request<{ data: { auth_data: string } }>(url, {
-      method,
-      body: JSON.stringify({
-        email,
-        password,
-      }),
-      headers: { 'Content-Type': 'application/json' },
-    })
-
-    return user.data.auth_data
   }
 
   async getPlanList() {
@@ -181,7 +171,8 @@ export class BackendService {
   }
 
   async createUser({ email, password, invite_code }: { email: string, password: string, invite_code?: string }) {
-    const url = this.passportApi('auth/register')
+    // const url = this.passportApi('auth/register')
+    const url = `${this.origin}/api/v1/passport/auth/register`
     const method = 'POST'
 
     const user = await this.request<{
