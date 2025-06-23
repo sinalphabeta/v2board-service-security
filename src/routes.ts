@@ -221,11 +221,11 @@ router.post('/api/v1/r8d/quick/order', async (ctx: Koa.Context) => {
   const totalAmount = originalPrice - preferential
 
   // 创建用户
-  const authToken = await BackendService.instance.createUser({ email, password })
+  const authToken = await BackendService.instance.createUserWithAdmin({ email, password })
   console.log('createUser:', email, authToken)
 
   // 创建订单
-  const order = await BackendService.instance.createOrder({
+  const order = await BackendService.instance.createOrderWithAdmin({
     email,
     planId,
     period,

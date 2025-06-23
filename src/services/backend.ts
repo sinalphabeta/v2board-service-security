@@ -24,7 +24,7 @@ export class BackendService {
     this.origin = domain
   }
 
-  api(api: string) {
+  adminApi(api: string) {
     return `${this.origin}/api/v1/${this.apiPrefix}/${api}`
   }
 
@@ -108,7 +108,7 @@ export class BackendService {
   }
 
   async checkUser(email: string) {
-    const url = this.api('user/fetch')
+    const url = this.adminApi('user/fetch')
     const method = 'GET'
 
     const params = new URLSearchParams({
@@ -123,8 +123,8 @@ export class BackendService {
     }).then(res => !!res.data[0])
   }
 
-  async createUser({ email, password }: { email: string, password: string }) {
-    const url = this.api('user/generate')
+  async createUserWithAdmin({ email, password }: { email: string, password: string }) {
+    const url = this.adminApi('user/generate')
     const method = 'POST'
 
     const [emailPrefix, emailSuffix] = email.split('@')
@@ -142,7 +142,43 @@ export class BackendService {
     return await this.getUserToken(email, password)
   }
 
-  async createOrder({
+  async createUser({ email, password, invite_code }: { email: string, password: string, invite_code?: string }) {
+    const url = this.passportApi('auth/register')
+    const method = 'POST'
+
+    const user = await this.request<{
+      data: {
+        token: string
+        auth_data: string
+      }
+    }>(url, {
+      method,
+      body: JSON.stringify({
+        email,
+        password,
+        ...(invite_code ? { invite_code } : {}),
+      }),
+    })
+
+    return user.data.auth_data
+  }
+
+  async createOrder({ plan_id, period, coupon_code }: { plan_id: string | number, period: string, coupon_code?: string }) {
+    const url = this.userApi('order/save')
+    const method = 'POST'
+    const res = await this.request<{ data: string }>(url, {
+      method,
+      body: JSON.stringify({
+        plan_id: plan_id.toString(),
+        period,
+        ...(coupon_code ? { coupon_code } : {}),
+      }),
+    })
+
+    return res.data
+  }
+
+  async createOrderWithAdmin({
     email,
     planId,
     period,
@@ -157,7 +193,7 @@ export class BackendService {
       throw new Error('totalAmount NaN')
     }
 
-    const url = this.api('order/assign')
+    const url = this.adminApi('order/assign')
     const method = 'POST'
     console.log({
       email,
