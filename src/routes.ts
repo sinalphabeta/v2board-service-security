@@ -3,6 +3,7 @@ import type { PlanPeriodKey } from './services/backend'
 import type { CaptchaType } from './types/captcha'
 import * as process from 'node:process'
 import KoaRouter from '@koa/router'
+import chalk from 'chalk'
 import {
   captchaKey,
   captchaLoginEnabled,
@@ -28,7 +29,7 @@ router.get('/status', async (ctx: Koa.Context) => {
   ctx.response.type = 'text/html'
   ctx.response.status = 200
   ctx.response.body = `
-    <html>
+    <html lang='zh'>
       <head>
         <title>服务状态 - AirBuddy Security</title>
       </head>
@@ -166,10 +167,9 @@ router.get('/api/v1/r8d/quick/captcha', async (ctx: Koa.Context) => {
  * 创建免登订单
  */
 router.post('/api/v1/r8d/quick/order', async (ctx: Koa.Context) => {
-  const { email, password, planId, period, paymentId, couponCode, invite_code } = ctx.request.body as {
+  const { email, password, planId, period, couponCode, invite_code } = ctx.request.body as {
     planId: string
     period: PlanPeriodKey
-    paymentId: number
     email: string
     password: string
     couponCode?: string
@@ -209,12 +209,6 @@ router.post('/api/v1/r8d/quick/order', async (ctx: Koa.Context) => {
     return
   }
 
-  // const plans = await BackendService.instance.getPlanList()
-  // const findPlan = plans.find(plan => plan.id.toString() === planId)!
-  // const originalPrice = findPlan[period] || 0
-  // const preferential = couponValue === 0 ? 0 : (couponType === 1 ? couponValue * 0.01 : originalPrice * (couponValue * 0.01))
-  // const totalAmount = originalPrice - preferential
-
   // 创建用户
   const authToken = await BackendService.instance.createUser({ email, password, invite_code })
   console.log('createUser:', email, authToken)
@@ -226,20 +220,7 @@ router.post('/api/v1/r8d/quick/order', async (ctx: Koa.Context) => {
     period,
     coupon_code: couponCode,
   })
-  // const order = await BackendService.instance.createOrderWithAdmin({
-  //   email,
-  //   planId,
-  //   period,
-  //   totalAmount,
-  // })
   console.log('createOrder:', email, order)
-
-  // 获取支付链接
-  const payment = await BackendService.instance.checkoutOrder({
-    token: authToken,
-    trade_no: order,
-    paymentId, // 默认使用支付宝支付
-  })
 
   // 发送新用户邮件
   const template = MailerService.instance.newUserTemplate
@@ -249,15 +230,16 @@ router.post('/api/v1/r8d/quick/order', async (ctx: Koa.Context) => {
     : {
         text: `${smtpNewUserSubject}！\n\n您的账号信息：\n邮箱: ${email}\n密码: ${password}\n\n请妥善保管您的账号信息。`,
       }
-  MailerService.instance.sendMail(email, smtpNewUserSubject || '通知', template)
+  MailerService.instance.sendMail(email, smtpNewUserSubject || '通知', template).then(() => {
+    console.log(chalk.bgGreen('SUCCESS:'), '发送新用户邮件成功:', email)
+  }).catch((err) => {
+    console.error(chalk.bgRed('ERROR:'), '发送新用户邮件失败:', email, err)
+  })
 
+  ctx.response.status = 200
   ctx.response.body = {
     authToken,
     orderId: order,
-    checkout: {
-      type: payment.type,
-      data: payment.data,
-    },
   }
 })
 
