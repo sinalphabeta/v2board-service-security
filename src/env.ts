@@ -1,6 +1,7 @@
 export const encoder = new TextEncoder()
 export const port = process.env.PORT || 3000
 // 必备环境变量
+export const panel = process.env.BACKEND_PANEL as 'v2b' | 'xb' | undefined
 export const domain = process.env.BACKEND_DOMAIN
 export const password = process.env.SEC_PASSWORD
 

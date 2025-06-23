@@ -11,6 +11,7 @@ import {
   captchaRegisterEnabled,
   domain,
   encoder,
+  panel,
   password,
   port,
 } from './env'
@@ -132,7 +133,7 @@ app.use(async (ctx, next) => {
 app.use(router.routes())
 
 ;(async () => {
-  if (!domain || !password) {
+  if (!panel || !domain || !password) {
     console.error(chalk.bgRedBright('ERROR:'), '请设置环境变量 DOMAIN 和 PASSWORD')
     process.exit(1)
   }
