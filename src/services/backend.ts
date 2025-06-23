@@ -210,25 +210,4 @@ export class BackendService {
 
     return res.data
   }
-
-  async checkoutOrder({ token, trade_no, paymentId }: { token: string, trade_no: string, paymentId: number },
-  ) {
-    const url = this.userApi('order/checkout')
-    const method = 'POST'
-
-    return await this.request<{
-      data: string
-      type: 0 | 1 | -1 // 0:qrcode 1:url -1:0元支付成功
-    }>(url, {
-      method,
-      body: JSON.stringify({
-        trade_no,
-        method: paymentId,
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': token,
-      },
-    })
-  }
 }
