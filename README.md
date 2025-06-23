@@ -29,10 +29,13 @@
 * 免登获取付款方式：可以在用户不登录的情况下获取付款方信息，方便用户进行支付
 * 免登创建订单接口：可以在用户不登录的情况下创建订单并实现自动注册登录账号，简化了用户的操作流程
 
+![](https://github.com/dc8683/picx-images-hosting/raw/master/docs/免登注册一体页面.7w735ov4x2.webp)
+
 ### 3. 自建 SMTP
 
 可以自建 SMTP 服务器，支持自定义邮件模板，方便用户发送邮件通知和营销邮件
 
+![](https://github.com/dc8683/picx-images-hosting/raw/master/docs/Clipboard---2025-06-23-08.10.25.7axfje3ikg.webp)
 
 ### 4. 环境变量
 
