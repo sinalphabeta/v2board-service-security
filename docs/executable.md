@@ -11,6 +11,7 @@
 
 # 设置环境变量, 参考上面的环境变量说明
 export PORT=12020 # 端口号
+export BACKEND_PANEL=v2b # 面板类型，v2b 表示 v2board/xiaoboard 面板，xb 表示 xboard 面板
 export BACKEND_DOMAIN=https://xxx.r8d.pro # 面板域名
 export SEC_PASSWORD=89236475 # AES 加密密码，前端和后端需要保持一致
 

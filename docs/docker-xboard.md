@@ -71,6 +71,7 @@ services:
       - "12020:3000"
     environment:
       # 以下是环境变量配置，请根据实际情况修改
+      - BACKEND_PANEL=v2b # 面板类型，v2b 表示 v2board/xiaoboard 面板，xb 表示 xboard 面板
       - BACKEND_DOMAIN=${DOMAIN} # 面板后端 API 域名
       - SEC_PASSWORD=${PASSWORD} # AES 加密密码，用于加解密，请和前端中的 security.password 保持一致
       # 用于实现免登接口的管理面板配置

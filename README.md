@@ -73,6 +73,7 @@
 ```dotenv
 # 必备环境变量
 PORT=3000 # 面板运行端口，docker 部署时请确保容器端口映射正确，其它部署方式请确保端口未被占用
+BACKEND_PANEL=v2b # 面板类型，v2b 表示 v2board/xiaoboard 面板，xb 表示 xboard 面板
 BACKEND_DOMAIN=https://api.xxx.com # 面板后端 API 域名
 SEC_PASSWORD=89236475 # AES 加密密码，用于加解密，请和前端中的 security.password 保持一致
 
