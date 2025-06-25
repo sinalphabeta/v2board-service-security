@@ -114,7 +114,7 @@ export class BackendService {
         'filter[0][condition]': '模糊',
         'filter[0][value]': email,
       })
-      url = `$${url}?${params.toString()}`
+      url = `${url}?${params.toString()}`
       delete reqInit.body
     }
 
