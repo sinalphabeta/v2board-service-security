@@ -86,6 +86,7 @@ export class BackendService {
       }),
       headers: { 'Content-Type': 'application/json' },
     })
+    console.log('Admin User ===> ', user)
     this.headerAuth = user.data.auth_data
     console.log(chalk.bgGreen('SUCCESS:'), 'AdminToken 初始化完成:', this.headerAuth)
   }
