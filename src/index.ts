@@ -11,6 +11,7 @@ import {
   captchaRegisterEnabled,
   domain,
   encoder,
+  encryptedRequestOnly,
   password,
   port,
 } from './env'
@@ -45,6 +46,12 @@ app.use(async (ctx, next) => {
   const salt = ctx.request.get('x-salt')
   const saltBuffer = salt && Buffer.from(salt, 'base64')
   console.log('请求头 x-salt:', salt)
+
+  // 如果设置为只允许加密请求且请求未加密，则拒绝请求
+  if (encryptedRequestOnly && !salt) {
+    ctx.status = 403
+    return
+  }
 
   if (salt && saltBuffer) {
     const rawQuery = ctx.query.q as string
@@ -143,5 +150,6 @@ app.use(router.routes())
   // 启动服务器
   app.listen(port, () => {
     console.log(chalk.bgGreen('SUCCESS:'), `Airbuddy Security is running on http://localhost:${port}`)
+    console.log(chalk.bgYellow('REQUEST MODE:'), encryptedRequestOnly ? '仅接受加密请求' : '同时接受明文和加密请求')
   })
 })()

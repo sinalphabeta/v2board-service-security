@@ -22,6 +22,8 @@ export const captchaKey = process.env.CAPTCHA_KEY
 export const captchaQuickOrderEnabled = process.env.CAPTCHA_QUICK_ORDER_ENABLED === 'true'
 export const captchaRegisterEnabled = process.env.CAPTCHA_REGISTER_ENABLED === 'true'
 export const captchaLoginEnabled = process.env.CAPTCHA_LOGIN_ENABLED === 'true'
+// 安全设置
+export const encryptedRequestOnly = process.env.ENCRYPTED_REQUEST_ONLY === 'true'
 
 // 动态代理配置
 export const proxyConfig = process.env.PROXY_URL
