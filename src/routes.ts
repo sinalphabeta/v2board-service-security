@@ -5,6 +5,7 @@ import * as process from 'node:process'
 import KoaRouter from '@koa/router'
 import chalk from 'chalk'
 import {
+  adminCreateUserEnabled,
   captchaKey,
   captchaLoginEnabled,
   captchaQuickOrderEnabled,
@@ -210,7 +211,9 @@ router.post('/api/v1/r8d/quick/order', async (ctx: Koa.Context) => {
   }
 
   // 创建用户
-  const authToken = await BackendService.instance.createUser({ email, password, invite_code: inviteCode })
+  const authToken = adminCreateUserEnabled
+    ? await BackendService.instance.createUserForAdmin({ email, password })
+    : await BackendService.instance.createUser({ email, password, invite_code: inviteCode })
   console.log('createUser:', email, authToken)
 
   // 创建订单

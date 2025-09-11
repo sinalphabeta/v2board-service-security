@@ -193,6 +193,48 @@ export class BackendService {
     return user.data.auth_data
   }
 
+  async createUserForAdmin({ email, password }: { email: string, password: string }) {
+    // 创建用户
+    const url = this.adminApi('user/generate')
+    const params = {
+      email_prefix: email.split('@')[0],
+      email_suffix: email.split('@')[1],
+      password,
+    }
+    const reqInit: RequestInit = {
+      method: 'POST',
+      headers: {
+        'Content-Type': this.panel === 'xb' ? 'application/json' : 'application/x-www-form-urlencoded',
+      },
+      body: this.panel === 'xb' ? JSON.stringify(params) : new URLSearchParams(params).toString(),
+    }
+
+    const res = await this.request<{ data: boolean }>(url, {
+      ...reqInit,
+    })
+
+    if (res.data !== true) {
+      throw new Error('Admin 创建用户失败')
+    }
+
+    // 使用普通登录接口获取用户的 token
+    const loginUrl = `${this.origin}/api/v1/passport/auth/login`
+    const user = await this.request<{
+      data: {
+        token: string
+        auth_data: string
+      }
+    }>(loginUrl, {
+      method: 'POST',
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+    })
+
+    return user.data.auth_data
+  }
+
   async createOrder({ token, plan_id, period, coupon_code }: { token: string, plan_id: string | number, period: string, coupon_code?: string }) {
     const url = this.userApi('order/save')
     const method = 'POST'

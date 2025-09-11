@@ -55,6 +55,7 @@
 - ADMIN_TOKEN: 面板管理员令牌，用于身份验证和权限控制，如果你填了 `ADMIN_EMAIL` 和 `ADMIN_PASSWORD` 则不需要填入 `ADMIN_TOKEN`，因为每次启动服务都会自动生成一个新的 `ADMIN_TOKEN`
 - ADMIN_EMAIL: 面板管理员邮箱账号
 - ADMIN_PASSWORD: 面板管理员密码
+- ADMIN_CREATE_USER_ENABLED: 是否允许管理员通过面板创建用户，true 表示允许，false 表示禁止，此环境变量主要解决开启邮箱注册验证，如果开启了邮箱注册验证，必须将此环境变量设置为 true，当使用了管理员创建用户能力后，邀请码将失效
 
 #### 邮件服务配置
 
@@ -73,6 +74,10 @@
 - CAPTCHA_REGISTER_ENABLED: 是否启用注册验证码，true 或 false
 - CAPTCHA_LOGIN_ENABLED: 是否启用登录验证码，true 或 false
 
+#### 安全设置
+
+- ENCRYPTED_REQUEST_ONLY: 是否只允许加密请求，true 表示只接受加密请求，false 表示同时接受明文和加密请求
+
 示例配置:
 
 ```dotenv
@@ -86,6 +91,7 @@ SEC_PASSWORD=89236475 # AES 加密密码，用于加解密，请和前端中的 
 ADMIN_API_PREFIX=c523003d # 面板的后台管理路径
 ADMIN_EMAIL=admin@qq.com # 面板管理员邮箱
 ADMIN_PASSWORD=xxxxxx # 面板管理员密码
+ADMIN_CREATE_USER_ENABLED=false # 是否允许管理员通过面板创建用户，true 表示允许，false 表示禁止
 
 # 邮件服务配置
 MAIL_HOST=smtp.gmail.com # 邮件服务器地址

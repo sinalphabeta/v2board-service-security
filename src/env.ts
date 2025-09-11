@@ -9,6 +9,8 @@ export const password = process.env.SEC_PASSWORD
 export const adminApi = process.env.ADMIN_API_PREFIX
 export const adminEmail = process.env.ADMIN_EMAIL
 export const adminPassword = process.env.ADMIN_PASSWORD
+export const adminCreateUserEnabled = process.env.ADMIN_CREATE_USER_ENABLED === 'true'
+
 // 邮件服务的环境变量
 export const smtpHost = process.env.MAIL_HOST
 export const smtpPort = process.env.MAIL_PORT
